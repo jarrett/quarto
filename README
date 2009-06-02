@@ -17,4 +17,4 @@ DOM elements and pass variables to the templates.
 Using Quarto
 =============
 
-Thorough documentation doesn't exist yet. For now, see the sample directory.
+Thorough documentation doesn't exist yet. For now, see spec/sample_project.

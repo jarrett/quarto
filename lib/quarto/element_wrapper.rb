@@ -1,18 +1,37 @@
 module Quarto
 	class ElementWrapper
+		include InheritableAttributes
+		
+		def self.xml_doc
+			Quarto.xml_doc
+		end
+		
+		def self.element_attrs(*element_names)
+			write_inheritable_array :element_attrs, element_names.collect { |en| en.to_sym}
+		end
+		
+		def self.element_name
+			@element_name
+		end
+		
 		def self.element_name=(el_name)
 			@element_name = el_name
 		end
 		
-		def self.find(*args)
-			quantifier = args.shift
-			raise ArgumentError, "Expected :all, :first, or :last, but got #{quantifier.inspect}" unless [:all, :first, :last].include?(quantifier)
-			args.each do |arg|
-				raise ArgumentError, "Expected a Hash but got: #{arg.inspect}" unless arg.is_a?(Hash)
-			end
-			if args.has_key?(:xpath)
-				@document.elements[args[:xpath]].collect do |el|
-					from_element(el)
+		def self.find(quantifier, options = {})
+			raise ArgumentError, "Quantifier must be :all, :first, or :last, but got #{quantifier.inspect}" unless [:all, :first, :last].include?(quantifier)
+			raise ArgumentError, "Options must be a Hash, but got #{options.inspect}" unless options.is_a?(Hash)
+			if options.has_key?(:xpath)
+				all = xml_doc.elements.to_a(options[:xpath]).collect do |el|
+					new(el)
+				end
+				case quantifier
+				when :all
+					all
+				when :first
+					all.first
+				when :last
+					all.last
 				end
 			else
 				raise ArgumentError, 'In this beta version of Quarto, the :xpath option is mandatory. Later versions will feature other search methods.'
@@ -20,33 +39,37 @@ module Quarto
 			end
 		end
 		
-		def self.from_element(el)
-			raise NotImplementedError, 'Subclasses must implement self.from_elements'
-		end
-		
 		def self.inherited(subclass)
-			@element_name = element_name_from_class_name(subclass.to_s)
+			subclass.element_name = element_name_from_class(subclass)
 		end
 		
 		def initialize(el)
+			unless el.is_a?(REXML::Element)
+				raise ArgumentError, "Quarto::ElementWrapper.new must be passed a REXML::Element, but got #{el.inspect}"
+			end
 			@element = el
-		end
-		
-		def ivs_from_attributes(*attribute_names)
-			attribute_names.each do |a_name|
-				instance_variable_set "@#{a_name}", typecast_text(@element.attributes[a_name.to_s])
+			@attributes = {}
+			@element.attributes.each do |a_name, value|
+				@attributes[a_name.to_sym] = typecast_text(value)
+			end
+			self.class.read_inheritable_attribute(:element_attrs).each do |el_name|
+				@attributes[el_name.to_sym] = typecast_text(@element.elements[el_name.to_s].text)
 			end
 		end
-		
-		def ivs_from_elements(*element_names)
-			element_names.each do |el_name|
-				instance_variable_set "@#{el_name}", typecast_text(@element[el_name.to_s].text)
-			end
-		end
-		
+
 		def method_missing(meth, *args)
-			if @element.respond_to?(meth)
+			if @attributes.has_key?(meth.to_sym)
+				@attributes[meth.to_sym]
+			elsif @element.respond_to?(meth)
 				@element.send(meth, *args)
+			else	
+				super
+			end
+		end
+		
+		def respond_to?(meth, include_private = false)
+			if @element.respond_to?(meth, include_private) or @attributes.has_key?(meth.to_sym)
+				true
 			else
 				super
 			end
@@ -54,9 +77,9 @@ module Quarto
 		
 		protected
 	
-		def self.element_name_from_class_name(class_name)
+		def self.element_name_from_class(klass)
 			# Thanks to ActiveSupport for this algorithm
-			class_name.split['::'].last.
+			klass.to_s.split('::').last.
 			gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
 			gsub(/([a-z\d])([A-Z])/,'\1_\2').
 			tr("-", "_").

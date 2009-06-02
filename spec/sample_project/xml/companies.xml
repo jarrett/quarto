@@ -1,6 +1,19 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <companies>
-	<company>
+	<company reality="real">
+		<name>37Signals</name>
+		<industry>Software</industry>
+		<employees>
+			<employee>
+				<name>DHH</name>
+			</employee>
+			<employee>
+				<name>Jamis Buck</name>
+			</employee>
+		</employees>
+	</company>
+	
+	<company reality="fictional">
 		<name>Mega-lo-mart</name>
 		<industry>Retail</industry>
 		<employees>
@@ -13,7 +26,7 @@
 		</employees>
 	</company>
 	
-	<company>
+	<company reality="fictional">
 		<name>Kwik-E-Mart</name>
 		<industry>Retail</industry>
 		<employees>
@@ -23,7 +36,7 @@
 		</employees>
 	</company>
 	
-	<company>
+	<company reality="fictional">
 		<name>Good Burger</name>
 		<industry>Foodservice</industry>
 		<employees>
@@ -36,7 +49,7 @@
 		</employees>
 	</company>
 	
-	<company>
+	<company reality="fictional">
 		<name>Milliways</name>
 		<industry>Foodservice</industry>
 		<employees>
