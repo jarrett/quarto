@@ -10,9 +10,8 @@ Why Quarto?
 Say you have a book in XML format, and you want to make a web site from it. You could transform it
 to HTML using XSLT. But what if you need logic that can't be implemented in XSLT?
 
-Enter Quarto. Instead of writing a series of XSLT sheets, you write ERB templates and pass in
-variables pulled from the DOM. You implement whatever custom logic you need in classes that wrap the
-DOM elements and pass variables to the templates.
+Enter Quarto. Instead of writing a series of XSLT sheets, you write ERB templates. You implement
+whatever custom logic you need in classes that wrap the DOM elements, then you pass variables to the templates.
 
 Using Quarto
 =============
