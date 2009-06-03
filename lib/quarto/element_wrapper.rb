@@ -86,18 +86,14 @@ module Quarto
 		protected
 		
 		def typecast_text(t)
-			if t.empty?
+			if t.nil? or (t.is_a?(String) and t.empty?)
 				nil
 			elsif t =~ /^-?[0-9]+$/
 				t.to_i
 			elsif t =~ /^-?[0-9]*\.[0-9]+$/
 				t.to_f
 			else
-				begin
-					DateTime.parse(t)
-				rescue ArgumentError
-					t
-				end
+				t
 			end
 		end
 	end

@@ -67,8 +67,12 @@ module Quarto
 		
 		attr_reader :collection_element
 		
-		def each(xpath = nil)
-			to_a(xpath).each { |child| yield child }
+		def each
+			to_a.each { |child| yield child }
+		end
+		
+		def empty?
+			to_a.empty?
 		end
 		
 		def initialize(wrapped_parent, el_name, options = {})

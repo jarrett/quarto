@@ -67,6 +67,7 @@ describe Quarto::ElementWrapper do
 		
 		it 'should work without the :xpath parameter' do
 			Company.find(:all).should == Company.find(:all, :xpath => '//company')
+			Employee.find(:all).should == Employee.find(:all, :xpath => '//employee')
 		end
 		
 		it 'should return all matching elements when the quantifier is :all' do
