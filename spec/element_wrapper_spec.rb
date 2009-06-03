@@ -6,7 +6,7 @@ describe Quarto::ElementWrapper do
 		@xml = Quarto.xml_doc
 	end
 	
-	context 'created from an element with attributes and children' do
+	context 'wrapping an element with attributes and children' do
 		before :each do
 			@element = @xml.elements['companies/company']
 			@company = Company.new(@element)
@@ -48,10 +48,6 @@ describe Quarto::ElementWrapper do
 	end
 	
 	context '#find' do
-		it 'should require the :xpath parameter' do
-			lambda { Company.find(:all) }.should raise_error(ArgumentError)
-		end
-		
 		it 'should find matching elements based on :xpath' do
 			companies = Company.find(:all, :xpath => 'companies/company')
 			companies.should be_a(Array)
@@ -67,6 +63,10 @@ describe Quarto::ElementWrapper do
 			companies.should be_a(Array)
 			companies.length.should == 1
 			companies[0].name.should == 'Milliways'
+		end
+		
+		it 'should work without the :xpath parameter' do
+			Company.find(:all).should == Company.find(:all, :xpath => '//company')
 		end
 		
 		it 'should return all matching elements when the quantifier is :all' do

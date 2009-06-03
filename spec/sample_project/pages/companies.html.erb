@@ -1,0 +1,37 @@
+<h1>Companies</h1>
+
+<ul>
+	<% companies.each do |company| %>
+		<li>
+			<h2><%= company.name %></h2>
+			
+			<p>Industry: <%= company.industry %></p>
+			
+			<% if company.competitors.empty? %>
+				<p>No competitors.</p>
+			<% else %>
+				<p>Competitors:</p>
+				<ul>
+					<% company.competitors.each do |competitor| %>
+						<li><%= competitor.name %></li>
+					<% end %>
+				</ul>
+			<% end %>
+			
+			<% if company.employees.empty? %>
+				<p>No employees.</p>
+			<% else %>
+				<p>Employees:</p>
+				<ul>
+					<% company.employees.each do |employee| %>
+						<li>
+							<a href="<%= abs_url("employees/#{urlize(employee.name)}.html") %>">
+								<%= employee.name %>
+							</a>
+						</li>
+					<% end %>
+				</ul>
+			<% end %>
+		</li>
+	<% end %>
+</ul>
