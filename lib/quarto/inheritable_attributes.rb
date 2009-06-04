@@ -1,7 +1,7 @@
 # Thanks to ActiveSupport for this stuff
 
 module Quarto
-	module InheritableAttributes
+	module InheritableAttributes # :nodoc: all
 		def self.included(base)
 			base.extend(ClassMethods)
 		end

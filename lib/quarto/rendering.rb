@@ -1,5 +1,5 @@
 module Quarto
-	class Rendering
+	class Rendering # :nodoc: all
 		include UrlHelper
 		
 		def initialize(__erb_template, __locals)

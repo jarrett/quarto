@@ -1,5 +1,5 @@
 Quarto.generate do
-	Quarto.config(:site_root => 'http://localhost/')
+	config(:site_root, 'http://localhost/') # This determines how abs_url works.
 
 	use_xml('companies.xml')
 

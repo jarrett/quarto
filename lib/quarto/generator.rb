@@ -1,4 +1,14 @@
 module Quarto
+	# Generates the project according to the directives in the block.
+	# A block must be supplied. The block will be evaluated within the context of
+	# a Quarto::Generator object.
+	#
+	# If the optional +project_path+ is given, the directives in the block willl
+	# be process for the project residing +project_path+. Otherwise, the current
+	# working directory will be used.
+	#
+	# This method is typically called from <tt>generate.rb</tt>. There's probably
+	# no reason for you to call it from any other context.
 	def self.generate(project_path = nil, &block)
 		unless block_given?
 			raise ArgumentError, 'Quarto.generate must be given a block'
@@ -22,16 +32,22 @@ module Quarto
 		generator
 	end
 	
+	# Generates the project at the specified path using its generate.rb.
 	def self.generate_from_project_path(project_path)
 		raise ArgumentError, "Expected string, but got #{project_path.inspect}" unless project_path.is_a?(String) and !project_path.empty?
 		load(project_path + '/generate.rb')
 	end
 	
+	# This class responds to all the directives that are available for use within
+	# a generate.rb file.
 	class Generator
 		include UrlHelper
 		
+		# Sets the name of the default layout file in the layouts directory. If
+		# default_layout isn't specified, the default layout is the first file matching <tt>default.*</tt>.
 		attr_accessor :default_layout
 		
+		# Generate the project according to the directives given in the block.
 		def generate(&block)
 			raise ArgumentError, 'generate must be called with a block' unless block_given?
 			if !File.exists? @output_path
@@ -40,10 +56,14 @@ module Quarto
 			instance_eval(&block)
 		end
 		
-		def generate_file_path
+		def generate_file_path # :nodoc:
 			@project_path + '/generate.rb'
 		end
 		
+		# Options:
+		# * <tt>:console_output</tt> - Boolean. If true, the generator will print what it's currently doing.
+		# * <tt>:console</tt> - By default, console messages will be printed to stdout. You can override this
+		#   by passing in an object that responds to <tt>puts</tt>.
 		def initialize(project_path, options = {})
 			raise ArgumentError, "Expected string, but got #{project_path.inspect}" unless project_path.is_a?(String) and !project_path.empty?
 			raise ArgumentError, "Project path #{project_path} doesn't exist" unless File.exists?(project_path)
@@ -53,16 +73,28 @@ module Quarto
 			@console = @options[:console]
 		end
 		
-		attr_reader :output_path
+		attr_reader :output_path # :nodoc:
 		
 		protected
 		
+		# Set a configuration for Quarto to use during generation, e.g. <tt>:site_root</tt>
+		def config(key, value)
+			Quarto.config[key] = value
+		end
+		
 		# Render the given +template+, and save the output in +filename+ under +directory+.
 		# +locals+ is a hash where they keys are the names of local variables in the template
+		#
+		# Options:
+		# * <tt>:layout</tt> - Render inside the specified layout. Must be the name of
+		#   a file in the layouts directory, e.g. <tt>my_layout.html.erb</tt>. If not given,
+		#   the <tt>default_layout</tt> will be used.
+		#
 		# Example:
 		#   employees.each do |employee|
 		#     render 'employee.html.erb', 'employees', urlize(employee.name) + '.html', :employee => employee
 		#   end
+		#
 		# That example will create a number of files with names like "John-Smith.html"
 		# in the "employees" directory
 		def render(template, directory, filename, locals, options = {})
@@ -89,6 +121,8 @@ module Quarto
 			end
 		end
 		
+		# Renders +template+ to a string. Sets local variables within the template to the values given
+		# in +locals+.
 		def render_to_s(template, locals, options = {})
 			page_template_path = "#{@project_path}/pages/#{template}"
 			page_template = ERB.new(File.read(page_template_path))
@@ -116,6 +150,9 @@ module Quarto
 			end
 		end
 		
+		# Specifies which XML file to use. Must be the name of a file in the xml directory, e.g. <tt>companies.xml</tt>.
+		# This method absolutely must be called within <tt>generate.rb</tt>. Otherwise, Quarto won't know what XML
+		# to use as its source.
 		def use_xml(xml_filename)
 			Quarto.xml_source = File.open("#{@project_path}/xml/#{xml_filename}")
 		end
