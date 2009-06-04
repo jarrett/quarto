@@ -1,19 +1,31 @@
 module Quarto
+	def self.generate(project_path = nil, &block)
+		# caller[0] returns the trace for the context that called generate
+		project_path = project_path || File.expand_path(caller[0].split[':'][0])
+		generator = Quarto::Generator.new(project_path)
+		generator.generate(&block)
+		generator
+	end
+	
 	class Generator
 		include UrlHelper
 		
 		attr_accessor :default_layout
 		
-		def generate
-			if block_given?
-				yield self
+		def generate(&block)
+			raise ArgumentError, 'generate must be called with a block' unless block_given?
+			if !File.exists? @output_path
+				Dir.mkdir @output_path
 			end
-			generate_file_path = @project_path + '/generate.rb'
-			raise LoadError, 'Project directory must contain generate.rb' unless File.exists?(generate_file_path)
-			instance_eval(File.read(generate_file_path))
+			instance_eval(&block)
+		end
+		
+		def generate_file_path
+			@project_path + '/generate.rb'
 		end
 		
 		def initialize(project_path)
+			raise ArgumentError, "Project path #{project_path} doesn't exist" unless File.exists?(project_path)
 			@project_path = project_path
 			@output_path = project_path + '/output'
 		end
@@ -31,10 +43,6 @@ module Quarto
 		# That example will create a number of files with names like "John-Smith.html"
 		# in the "employees" directory
 		def render(template, directory, filename, locals, options = {})
-			if !File.exists? @output_path
-				Dir.mkdir @output_path
-			end
-			
 			if directory.nil? or directory.empty?
 				path = "#{@output_path}/#{filename}"
 			else
