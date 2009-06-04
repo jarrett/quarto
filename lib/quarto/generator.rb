@@ -1,10 +1,30 @@
 module Quarto
 	def self.generate(project_path = nil, &block)
-		# caller[0] returns the trace for the context that called generate
-		project_path = project_path || File.expand_path(caller[0].split[':'][0])
+		unless block_given?
+			raise ArgumentError, 'Quarto.generate must be given a block'
+		end
+		# caller[0] returns the trace for the context that called generate. So, if generate.rb is invoked directly, Quarto will still work.
+		trace = caller()
+		unless trace.empty?
+			calling_file = trace[0].split(':')[-2]
+			if File.basename(calling_file) == 'generate.rb'
+				project_path = project_path || File.expand_path(File.dirname(calling_file))
+			end
+		end
+		unless project_path.is_a?(String) and !project_path.empty?
+			raise ArgumentError, 'project_path is required when Quarto.generate is called from any file other than generate.rb'
+		end
+		Dir.glob(project_path + '/models/*.rb').each do |model_file|
+			require model_file
+		end
 		generator = Quarto::Generator.new(project_path)
 		generator.generate(&block)
 		generator
+	end
+	
+	def self.generate_from_project_path(project_path)
+		raise ArgumentError, "Expected string, but got #{project_path.inspect}" unless project_path.is_a?(String) and !project_path.empty?
+		load(project_path + '/generate.rb')
 	end
 	
 	class Generator
@@ -24,10 +44,13 @@ module Quarto
 			@project_path + '/generate.rb'
 		end
 		
-		def initialize(project_path)
+		def initialize(project_path, options = {})
+			raise ArgumentError, "Expected string, but got #{project_path.inspect}" unless project_path.is_a?(String) and !project_path.empty?
 			raise ArgumentError, "Project path #{project_path} doesn't exist" unless File.exists?(project_path)
 			@project_path = project_path
 			@output_path = project_path + '/output'
+			@options = {:console_output => true, :console => Kernel}.merge(options)
+			@console = @options[:console]
 		end
 		
 		attr_reader :output_path
@@ -43,6 +66,14 @@ module Quarto
 		# That example will create a number of files with names like "John-Smith.html"
 		# in the "employees" directory
 		def render(template, directory, filename, locals, options = {})
+			if @options[:console_output]
+				if directory.is_a?(String) and !directory.empty?
+					@console.puts "Writing from template #{template} to output/#{directory}/#{filename}"
+				else
+					@console.puts "Writing from template #{template} to output/#{filename}"
+				end
+			end
+			
 			if directory.nil? or directory.empty?
 				path = "#{@output_path}/#{filename}"
 			else

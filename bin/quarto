@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+def require_quarto
+	$LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/../lib"))
+	require 'quarto'
+end
+
+case ARGV[0]
+when 'help'
+when 'init'
+	require_quarto
+	project_path = ARGV[1] || Dir.getwd
+	Quarto.init_project(project_path)
+	exit 0
+when 'generate'
+	require_quarto
+	project_path = ARGV[1] || Dir.getwd
+	Quarto.generate_from_project_path(project_path)
+	exit 0
+else
+	puts "Usage:\n  quarto init [project_path]\n  quarto generate [project_path]\n  quarto help"
+	exit -1
+end
