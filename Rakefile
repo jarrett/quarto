@@ -1,7 +1,7 @@
 begin
 	require 'jeweler'
 	Jeweler::Tasks.new do |gemspec|
-		gemspec.name = 'Quarto'
+		gemspec.name = 'quarto'
 		gemspec.summary = 'generates HTML or any other format from XML'
 		gemspec.email = 'jarrett@uchicago.edu'
 		gemspec.homepage = 'http://github.com/jarrett/quarto'
