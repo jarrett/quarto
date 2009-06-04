@@ -108,10 +108,22 @@ describe Quarto::Generator do
 		end
 		
 		it 'should create one file for each employee' do
-			expected_files = ['DHH', 'Jamis Buck', 'Hank Hill', 'Buckley', 'Apu Nahasapeemapetilon', 'Kenan Thompson', 'Kel Mitchell', 'Marvin'].sort.collect do |name|
-				urlize(name) + '.html'
-			end
+			expected_files = ['DHH', 'Jamis Buck', 'Hank Hill', 'Buckley', 'Apu Nahasapeemapetilon', 'Kenan Thompson', 'Kel Mitchell', 'Marvin'].sort.collect { |name| urlize(name) + '.html' }
 			Dir.glob(@generator.output_path + '/employees/*.html').collect { |f| File.basename(f) }.sort.should == expected_files
+		end
+		
+		it 'should pass the companies into the template' do
+			html = File.read(@generator.output_path + '/companies.html')
+			['37Signals', 'Mega-lo-mart', 'Kwik-E-Mart', 'Good Burger', 'Milliways'].each do |name|
+				html.should include(name)
+			end
+		end
+		
+		it 'should pass the employee names into the template' do
+			['DHH', 'Jamis Buck', 'Hank Hill', 'Buckley', 'Apu Nahasapeemapetilon', 'Kenan Thompson', 'Kel Mitchell', 'Marvin'].each do |name|
+				html = File.read(@generator.output_path + '/employees/' + urlize(name) + '.html')
+				html.should include(name)
+			end
 		end
 	end
 end
