@@ -2,17 +2,34 @@
 
 Gem::Specification.new do |s|
   s.name = %q{quarto}
-  s.version = "0.3.0"
+  s.version = "0.3.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jarrett Colby"]
-  s.date = %q{2009-06-04}
+  s.date = %q{2009-06-05}
   s.default_executable = %q{quarto}
   s.description = %q{Quarto is a Ruby framework for generating collections of documents from XML. It steps in where XSLT just won't cut it. Potential applications include web sites and e-books. It's built on top of ERB and REXML.}
   s.email = %q{jarrett@uchicago.edu}
   s.executables = ["quarto"]
   s.extra_rdoc_files = [
     "README"
+  ]
+  s.files = [
+    "README",
+     "Rakefile",
+     "VERSION",
+     "bin/quarto",
+     "lib/quarto.rb",
+     "lib/quarto/children.rb",
+     "lib/quarto/config.rb",
+     "lib/quarto/element_wrapper.rb",
+     "lib/quarto/generator.rb",
+     "lib/quarto/inheritable_attributes.rb",
+     "lib/quarto/init_project.rb",
+     "lib/quarto/rendering.rb",
+     "lib/quarto/url_helper.rb",
+     "lib/quarto/xml_doc.rb",
+     "quarto.gemspec"
   ]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/jarrett/quarto}
