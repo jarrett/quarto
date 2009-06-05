@@ -1,4 +1,4 @@
-class Employee < Quarto::ElementWrapper
+class Employee < Quarto::ElementWrapper::Base
 	element_attrs :name
 	
 	parent :company

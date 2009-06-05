@@ -1,24 +1,26 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/company')
 require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/employee')
+require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/product')
+require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/location')
 
-describe Quarto::ElementWrapper do
+describe Quarto::ElementWrapper::Base do
 	before :each do
 		Quarto.xml_source = File.open(SAMPLE_DIR + '/xml/companies.xml')
 		@xml = Quarto.xml_doc
 	end
 	
-	context 'wrapping an element with attributes and children' do
+	context 'wrapping an element with attributes' do
 		before :each do
 			@element = @xml.elements['companies/company']
 			@company = Company.new(@element)
 		end
 		
-		it 'should instantiate a subclass of Quarto::ElementWrapper' do
-			@company.should be_a(Quarto::ElementWrapper)
+		it 'should instantiate a subclass of Quarto::ElementWrapper::Base' do
+			@company.should be_a(Quarto::ElementWrapper::Base)
 		end
 		
-		it 'should define methods from specified child elements' do
+		it 'should define attributes from specified elements' do
 			@company.should respond_to(:name)
 			@company.name.should == '37Signals'
 		end
@@ -41,6 +43,16 @@ describe Quarto::ElementWrapper do
 		end
 	end
 	
+	context 'wrapping an element that only contains text' do
+		before :each do
+			@product = Product.find(:first, :xpath => "//product[text()='Propane']")
+		end
+		
+		it 'should link an attribute to the element\'s text' do
+			@product.name.should == 'Propane'
+		end
+	end
+	
 	context '.new' do
 		it 'should raise ArgumentError if it is passed anything other than a REXML::Element' do
 			[nil, 'foo', 1].each do |bad|
@@ -53,6 +65,7 @@ describe Quarto::ElementWrapper do
 		it 'should find matching elements based on :xpath' do
 			companies = Company.find(:all, :xpath => 'companies/company')
 			companies.should be_a(Array)
+			companies.length.should == 5
 			companies.each do |company|
 				company.should be_a(Company)
 			end
@@ -65,6 +78,15 @@ describe Quarto::ElementWrapper do
 			companies.should be_a(Array)
 			companies.length.should == 1
 			companies[0].name.should == 'Milliways'
+		end
+		
+		it 'should return an empty array with :all and an XPath that yields nothing' do
+			Company.find(:all, :xpath => "companies/company[foo='bar']").should == []
+		end
+		
+		it 'should return nil with :first or :last and an XPath that yields nothing' do
+			Company.find(:first, :xpath => "companies/company[foo='bar']").should == nil
+			Company.find(:last, :xpath => "companies/company[foo='bar']").should == nil
 		end
 		
 		it 'should work without the :xpath parameter' do
@@ -87,6 +109,25 @@ describe Quarto::ElementWrapper do
 			company = Company.find(:last, :xpath => 'companies/company')
 			company.should be_a(Company)
 			company.name.should == 'Milliways'
+		end
+	end
+	
+	context '#==' do
+		before :each do
+			@element_1 = @xml.elements['companies/company[first()]']
+			@element_2 = @xml.elements['companies/company[last()]']
+		end
+		
+		it 'should return true for two ElementWrapper::Base instances that wrap the same element' do
+			ElementWrapper.new(@element_1).should == ElementWrapper.new(@element_1)
+		end
+		
+		it 'should return false for two ElementWrapper::Base instaces that wrap different elements' do
+			ElementWrapper.new(@element_1).should_not == ElementWrapper.new(@element_1)
+		end
+		
+		it 'should return false if the second object is not an instance of ElementWrapper::Base' do
+			ElementWrapper.new(@element_1).should_not == 'foo'
 		end
 	end
 end

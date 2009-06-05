@@ -14,8 +14,11 @@
 	</company>
 	
 	<company reality="fictional">
-		<name>Mega-lo-mart</name>
+		<name>Mega-lo-Mart</name>
 		<industry>Retail</industry>
+		<mascot>
+			<name>Chuck Mangione</name>
+		</mascot>
 		<employees>
 			<employee>
 				<name>Hank Hill</name>
@@ -24,6 +27,19 @@
 				<name>Buckley</name>
 			</employee>
 		</employees>
+		<selling>
+			<!-- The collection element is called "selling" instead of "products" to test the collection element name override in ElementWrapper.children -->
+			<product>Propane</product>
+			<product>Hammer</product>
+		</selling>
+		<location>
+			<city>Arlen</city>
+			<state>Texas</state>
+		</location>
+		<location>
+			<city>Los Angeles</city>
+			<state>California</state>
+		</location>
 	</company>
 	
 	<company reality="fictional">

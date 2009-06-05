@@ -1,14 +1,16 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/company')
 require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/employee')
+require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/product')
+require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/location')
 
-describe Quarto::ElementWrapperChildren do
+describe Quarto::ElementWrapper::Children do
 	before :each do
 		Quarto.xml_source = File.open(SAMPLE_DIR + '/xml/companies.xml')
 		@xml = Quarto.xml_doc
 	end
 	
-	context 'an ElementWrapper instance with children' do
+	context 'an ElementWrapper::Base instance with children' do
 		before :each do
 			@element = @xml.elements['companies/company']
 			@company = Company.new(@element)
@@ -24,7 +26,37 @@ describe Quarto::ElementWrapperChildren do
 		end
 	end
 	
-	context 'an ElementWrapper instance with a parent' do
+	context 'an ElementWrapper::Base instance with children in a collection with an arbitrary name' do
+		before :each do
+			@company = Company.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
+		end
+		
+		it 'should know its children' do
+			@company.should respond_to(:products)
+			@company.products.should be_a(Quarto::ElementWrapper::ChildrenProxy)
+			@company.products.length.should == 2
+			@company.products.each do |product|
+				product.should be_a(Product)
+			end
+		end
+	end
+	
+	context 'an ElementWrapper::Base instance with children not wrapped in a collection element' do
+		before :each do
+			@company = Company.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
+		end
+		
+		it 'should know its children' do
+			@company.should respond_to(:locations)
+			@company.locations.should be_a(Quarto::ElementWrapper::ChildrenProxy)
+			@company.locations.length.should == 2
+			@company.locations.each do |location|
+				location.should be_a(Location)
+			end
+		end
+	end
+	
+	context 'an ElementWrapper::Base instance with a parent' do
 		before :each do
 			@element = @xml.elements['companies/company/employees/employee']
 			@employee = Employee.new(@element)
@@ -36,9 +68,19 @@ describe Quarto::ElementWrapperChildren do
 			@employee.company.name.should == '37Signals'
 		end
 	end
+	
+	context 'an ElementWrapper::Base instance with a singleton child' do
+		before :each do
+			@company = Company.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
+		end
+		
+		it 'should know its child' do
+			@company.mascot.should be_a(Mascot)
+		end
+	end
 end
 
-describe Quarto::Children do
+describe Quarto::ElementWrapper::ChildrenProxy do
 	before :each do
 		Quarto.xml_source = File.open(SAMPLE_DIR + '/xml/companies.xml')
 		@xml = Quarto.xml_doc

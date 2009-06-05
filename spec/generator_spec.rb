@@ -32,7 +32,7 @@ describe Quarto do
 			@mock_generator.should_receive(:generate)
 		end
 		
-		it 'should execute the block in the context of the Generator' do
+		it 'should pass the block to the Generator' do
 			@mock_generator.should_receive(:do_something_in_the_block)
 		end
 	end
@@ -114,7 +114,7 @@ describe Quarto::Generator do
 		
 		it 'should pass the companies into the template' do
 			html = File.read(@generator.output_path + '/companies.html')
-			['37Signals', 'Mega-lo-mart', 'Kwik-E-Mart', 'Good Burger', 'Milliways'].each do |name|
+			['37Signals', 'Mega-lo-Mart', 'Kwik-E-Mart', 'Good Burger', 'Milliways'].each do |name|
 				html.should include(name)
 			end
 		end
