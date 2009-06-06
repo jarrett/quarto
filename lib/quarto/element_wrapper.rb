@@ -1,7 +1,8 @@
 module Quarto
-	module ElementWrapper
+	module ElementWrapper # :nodoc:
+	
 		# Abstract base class for your models. Put your ElementWrapper::Base subclasses inside the
-		#"models" directory within your project. All files in that directory will be automatically
+		# "models" directory within your project. All files in that directory will be automatically
 		# required.
 		#
 		# Each ElementWrapper::Base subclass corresponds to exactly one XML element.
@@ -38,7 +39,7 @@ module Quarto
 		#   puts programmer.name
 		#   puts programmer.skill
 		#
-		# Also see the documentation for Quarto::Children
+		# Also see the documentation for ElementWrapper::Children
 		
 		class Base
 			include InheritableAttributes

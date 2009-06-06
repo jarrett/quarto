@@ -1,6 +1,9 @@
 require 'cgi'
 
 module Quarto
+	
+	# This module is included in Generator and thus made available in <tt>generate.rb</tt> files.
+	
 	module UrlHelper
 		# Generates an absolute URL, using the <tt>:site_root</tt> config value. (To change <tt>:site_root</tt>,
 		# put something like this in <tt>generate.rb</tt>:

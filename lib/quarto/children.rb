@@ -1,25 +1,7 @@
 module Quarto
-	# ElementWrapper::Base subclasses can define parent and child elements, resulting
-	# in handy accessor methods. For example:
-	#
-	#   class Company < ElementWrapper::Base
-	#     children :employees
-	#   end
-	#   
-	#   class Employee < ElementWrapper::Base
-	#     parent :company
-	#     element_attr 'name'
-	#   end
-	#   
-	#   # in generate.rb:
-	#   company = Company.find :first
-	#   company.employees.each do |employee|
-	#     puts employee.name
-	#   end
-	
-	module ElementWrapper
-		module Children
-			def self.included(base) # :nodoc:
+	module ElementWrapper # :nodoc:
+		module Children # :nodoc:
+			def self.included(base)
 				base.extend(ClassMethods)
 				base.class_eval do
 					alias_method :method_missing_without_children, :method_missing
@@ -30,7 +12,7 @@ module Quarto
 				end
 			end
 			
-			def method_missing_with_children(meth, *args) # :nodoc:
+			def method_missing_with_children(meth, *args)
 				if self.class.has_child_named?(meth)
 					child_obj(meth)
 				elsif self.class.has_children_named?(meth)
@@ -42,7 +24,7 @@ module Quarto
 				end
 			end
 			
-			def respond_to_with_children?(meth, include_private = false) # :nodoc:
+			def respond_to_with_children?(meth, include_private = false)
 				if self.class.has_child_named?(meth) or self.class.has_children_named?(meth) or self.class.has_parent_named?(meth)
 					true
 				else
@@ -55,25 +37,44 @@ module Quarto
 			def child_obj(meth)
 				options = self.class.read_inheritable_attribute(:singleton_children)[meth.to_sym]
 				el_name = (options[:element_name] || meth).to_s
-				child_class = options[:wrapper_class] || Kernel.const_get(el_name.classify)
+				child_class = Kernel.const_get(options[:wrapper_class] || el_name.classify)
+				child_element = @element.elements[el_name]
+				return nil if child_element.nil?
 				@singleton_children ||= {}
-				@singleton_children[meth] ||= child_class.new(@element.elements[el_name])
+				@singleton_children[meth] ||= child_class.new(child_element)
 			end
 			
-			def children_proxy(meth) # :nodoc:
+			def children_proxy(meth)
 				options = self.class.read_inheritable_attribute(:children)[meth.to_sym]
 				@children_proxies ||= {}
 				@children_proxies[meth] ||= ChildrenProxy.new(self, meth.to_s.singularize, options)
 			end
 			
-			def wrapped_parent # :nodoc:
+			def wrapped_parent
 				parent_el_name = self.class.read_inheritable_attribute(:parent)
 				parent_class_name = parent_el_name.classify
 				Kernel.const_get(parent_class_name).new(@element.parent.parent) # Go up two levels, since each child is expected to be inside a collection element
 			end
-	
-			module ClassMethods # :nodoc:
-				# :singleton_method:
+			
+			# ElementWrapper::Base subclasses can define parent and child elements, resulting
+			# in handy accessor methods. For example:
+			#
+			#   class Company < ElementWrapper::Base
+			#     children :employees
+			#   end
+			#   
+			#   class Employee < ElementWrapper::Base
+			#     parent :company
+			#     element_attr 'name'
+			#   end
+			#   
+			# and in generate.rb:
+			#   company = Company.find :first
+			#   company.employees.each do |employee|
+			#     puts employee.name
+			#   end
+			
+			module ClassMethods 
 				# Creates an attribute for a child element. +el_name+ must be the singular form.
 				#
 				# Options:
@@ -96,7 +97,6 @@ module Quarto
 					write_inheritable_hash(:singleton_children, {method_name.to_sym => options})
 				end
 				
-				# :singleton-method:
 				# Creates an attribute for child elements.
 				# 
 				# Options:
@@ -138,7 +138,6 @@ module Quarto
 					read_inheritable_attribute(:parent) == parent_el_name.to_s
 				end
 				
-				# :singleton-method:
 				# Defines the element's parent. Example:
 				#  Example:
 				#
@@ -157,6 +156,16 @@ module Quarto
 				end
 			end
 		end
+		
+		# Any call to a children accessor method returns an instance of ChildrenProxy. For example,
+		# consider this class:
+		#
+		#   class Company < ElementWrapper::Base
+		#     children :employees
+		#   end
+		#
+		# If you call <tt>#employees</tt> on an instance of Company, you'll get a ChildrenProxy
+		# object.
 	
 		class ChildrenProxy
 			include Enumerable
@@ -164,7 +173,7 @@ module Quarto
 			# Returns the REXML::Element for the children collection.
 			attr_reader :collection_element
 			
-			# Iterate over all children.
+			# Iterates over all children.
 			def each
 				to_a.each { |child| yield child }
 			end
@@ -187,7 +196,7 @@ module Quarto
 				else
 					@collection_element = @wrapped_parent.element.elements[@el_name.pluralize]
 				end
-				@wrapper_class = options[:wrapper_class] || Kernel.const_get(@el_name.classify)
+				@wrapper_class = Kernel.const_get(options[:wrapper_class] || @el_name.classify)
 			end
 			
 			# Returns the number of children.

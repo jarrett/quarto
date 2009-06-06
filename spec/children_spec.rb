@@ -23,7 +23,36 @@ describe Quarto::ElementWrapper::Children do
 		end
 	end
 	
-	context 'an ElementWrapper::Base instance with children in a collection with an arbitrary name' do
+	context '.children given :wrapper_class' do
+		before :all do
+			class CompanyWithWrapperClass < Quarto::ElementWrapper::Base
+				element_name = 'company'
+				children :employees, :wrapper_class => 'CrazyEmployee'
+			end
+			
+			class CrazyEmployee < Quarto::ElementWrapper::Base; end
+		end
+		
+		before :each do
+			@element = @xml.elements['companies/company']
+			@company = CompanyWithWrapperClass.new(@element)
+		end
+		
+		after :all do
+			Object.class_eval do
+				remove_const :CompanyWithWrapperClass
+				remove_const :CrazyEmployee
+			end
+		end
+		
+		it 'should use the specified class instead of the default' do
+			@company.employees.each do |employee|
+				employee.should be_a(CrazyEmployee)
+			end
+		end
+	end
+	
+	context '.children given :collection_element' do
 		before :each do
 			@company = Company.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
 		end
@@ -38,7 +67,7 @@ describe Quarto::ElementWrapper::Children do
 		end
 	end
 	
-	context 'an ElementWrapper::Base instance with children not wrapped in a collection element' do
+	context '.children given :collection_element => nil' do
 		before :each do
 			@company = Company.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
 		end
@@ -53,7 +82,7 @@ describe Quarto::ElementWrapper::Children do
 		end
 	end
 	
-	context 'an ElementWrapper::Base instance with a parent' do
+	context '#parent' do
 		before :each do
 			@element = @xml.elements['companies/company/employees/employee']
 			@employee = Employee.new(@element)
@@ -66,13 +95,65 @@ describe Quarto::ElementWrapper::Children do
 		end
 	end
 	
-	context 'an ElementWrapper::Base instance with a singleton child' do
+	context '.child' do
 		before :each do
 			@company = Company.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
 		end
 		
 		it 'should know its child' do
 			@company.mascot.should be_a(Mascot)
+		end
+		
+		it 'should make an accessor that returns nil if the child does not exist' do
+			@company = Company.find :first
+			@company.mascot.should == nil
+		end
+	end
+	
+	context '.child given :wrapper_class' do
+		before :all do
+			class CompanyWithWrapperClass < Quarto::ElementWrapper::Base
+				child :mascot, :wrapper_class => 'CrazyMascot'
+			end
+			
+			class CrazyMascot < Quarto::ElementWrapper::Base; end
+		end
+		
+		after :all do
+			Object.class_eval do
+				remove_const :CompanyWithWrapperClass
+				remove_const :CrazyMascot
+			end
+		end
+		
+		before :each do
+			@company = CompanyWithWrapperClass.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
+		end
+		
+		it 'should use the specified class instead of the default' do
+			@company.mascot.should be_a(CrazyMascot)
+		end
+	end
+	
+	context '.child given :element_name' do
+		before :all do
+			class CompanyWithElementName < Quarto::ElementWrapper::Base
+				child :the_mascot, :element_name => 'mascot'
+			end
+		end
+		
+		after :all do
+			Object.class_eval do
+				remove_const :CompanyWithElementName
+			end
+		end
+		
+		before :each do
+			@company = CompanyWithElementName.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
+		end
+		
+		it 'should use the specified element name instead of the default' do
+			@company.the_mascot.should be_a(Mascot)
 		end
 	end
 end

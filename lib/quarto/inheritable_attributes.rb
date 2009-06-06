@@ -1,5 +1,3 @@
-# Thanks to ActiveSupport for this stuff
-
 module Quarto
 	module InheritableAttributes # :nodoc: all
 		def self.included(base)
