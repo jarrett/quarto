@@ -47,13 +47,17 @@ module Quarto
 			def children_proxy(meth)
 				options = self.class.read_inheritable_attribute(:children)[meth.to_sym]
 				@children_proxies ||= {}
-				@children_proxies[meth] ||= ChildrenProxy.new(self, meth.to_s.singularize, options)
+				@children_proxies[meth] ||= ChildrenProxy.new(self, options[:element_name], options)
 			end
 			
 			def wrapped_parent
-				parent_el_name = self.class.read_inheritable_attribute(:parent)
-				parent_class_name = parent_el_name.classify
-				Kernel.const_get(parent_class_name).new(@element.parent.parent) # Go up two levels, since each child is expected to be inside a collection element
+				options = self.class.read_inheritable_attribute(:parent)
+				parent_class = Kernel.const_get(options[:wrapper_class] || options[:element_name].classify)
+				parent_el = @element
+				while parent_el.name != options[:element_name]
+					parent_el = parent_el.parent
+				end
+				parent_class.new(parent_el) # Go up two levels, since each child is expected to be inside a collection element
 			end
 			
 			# ElementWrapper::Base subclasses can define parent and child elements, resulting
@@ -100,15 +104,17 @@ module Quarto
 				# Creates an attribute for child elements.
 				# 
 				# Options:
-				# * <tt>:collection_element</tt> - In the XML, all children must be
-				#   wrapped in a collection element whose name is +pluralized_el_name+
-				#   unless the <tt>:collection_el_name</tt> option is given. If
+				# * <tt>:element_name</tt> - The XML element of each individual child. Default
+				#   to the singular form of +method_name+.
+				# * <tt>:collection_element</tt> - By default, ElementWrapper assums that all
+				#   children are wrapped in a collection element whose name is +method_name+.
+				#   You can override this with <tt>:collection_element</tt>. If
 				#   the child elements are not wrapped in a collection element at all,
-				#   use <tt>:collection_el_name => nil</tt>.
+				#   use <tt>:collection_element => nil</tt>.
 				# * <tt>:wrapper_class</tt> - The subclass of ElementWrapper::Base to use.
 				#   Defaults to the singular form of the element name.
 				#
-				#  Example:
+				# Example:
 				#
 				#   <company>
 				#     <employees>
@@ -121,7 +127,10 @@ module Quarto
 				#     children :employees
 				#   end
 				def children(method_name, options = {})
-					write_inheritable_hash(:children, {method_name.to_sym => {:el_name => method_name.to_s.singularize}.merge(options)})
+					write_inheritable_hash(:children, {method_name.to_sym => {
+						:element_name => method_name.to_s.singularize,
+						:collection_element => method_name.to_s
+					}.merge(options)})
 				end
 				
 				def has_child_named?(method_name) # :nodoc:
@@ -134,12 +143,18 @@ module Quarto
 					read_inheritable_attribute(:children).has_key?(method_name.to_sym)
 				end
 				
-				def has_parent_named?(parent_el_name) # :nodoc:
-					read_inheritable_attribute(:parent) == parent_el_name.to_s
+				def has_parent_named?(method_name) # :nodoc:
+					return false if read_inheritable_attribute(:parent).nil?
+					read_inheritable_attribute(:parent)[:method] == method_name.to_sym
 				end
 				
-				# Defines the element's parent. Example:
-				#  Example:
+				# Defines the element's parent. Options:
+				#
+				# * <tt>:element_name</tt> - The name of the parent element. Defaults to +method_name+.
+				# * <tt>:wrapper_class</tt> - The subclass of ElementWrapper::Base to use.
+				#   Defaults to the element name.
+				#
+				# Example:
 				#
 				#   <company>
 				#     <employees>
@@ -151,8 +166,8 @@ module Quarto
 				#   class Employee < ElementWrapper::Base
 				#     parent :company
 				#   end
-				def parent(el_name)
-					write_inheritable_attribute(:parent, el_name.to_s)
+				def parent(method_name, options = {})
+					write_inheritable_attribute(:parent, {:method => method_name.to_sym, :element_name => method_name.to_s}.merge(options))
 				end
 			end
 		end
@@ -183,20 +198,26 @@ module Quarto
 				to_a.empty?
 			end
 			
+			# Returns the first child in the collection.
+			def first
+				to_a.first
+			end
+			
 			def initialize(wrapped_parent, el_name, options = {}) # :nodoc:
 				@wrapped_parent = wrapped_parent
 				@el_name = el_name.to_s
-				if options.has_key?(:collection_element)
-					if options[:collection_element].nil?
-						# The subclass says there is no collection element wrapping the children
-						@collection_element = nil
-					else
-						@collection_element = @wrapped_parent.element.elements[options[:collection_element]]
-					end
+				if options[:collection_element].nil?
+					# The subclass says there is no collection element wrapping the children
+					@collection_element = nil
 				else
-					@collection_element = @wrapped_parent.element.elements[@el_name.pluralize]
+					@collection_element = @wrapped_parent.element.elements[options[:collection_element]]
 				end
 				@wrapper_class = Kernel.const_get(options[:wrapper_class] || @el_name.classify)
+			end
+			
+			# Returns the last child in the collection.
+			def last
+				to_a.last
 			end
 			
 			# Returns the number of children.
