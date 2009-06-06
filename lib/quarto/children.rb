@@ -31,7 +31,9 @@ module Quarto
 			end
 			
 			def method_missing_with_children(meth, *args) # :nodoc:
-				if self.class.has_children_named?(meth)
+				if self.class.has_child_named?(meth)
+					child_obj(meth)
+				elsif self.class.has_children_named?(meth)
 					children_proxy(meth)
 				elsif self.class.has_parent_named?(meth)
 					wrapped_parent
@@ -41,18 +43,26 @@ module Quarto
 			end
 			
 			def respond_to_with_children?(meth, include_private = false) # :nodoc:
-				if self.class.has_children_named?(meth) or self.class.has_parent_named?(meth)
+				if self.class.has_child_named?(meth) or self.class.has_children_named?(meth) or self.class.has_parent_named?(meth)
 					true
 				else
 					respond_to_without_children?(meth, include_private)
 				end
 			end
-			
+		
 			protected
+		
+			def child_obj(meth)
+				options = self.class.read_inheritable_attribute(:singleton_children)[meth.to_sym]
+				el_name = (options[:element_name] || meth).to_s
+				child_class = options[:wrapper_class] || Kernel.const_get(el_name.classify)
+				@singleton_children ||= {}
+				@singleton_children[meth] ||= child_class.new(@element.elements[el_name])
+			end
 			
 			def children_proxy(meth) # :nodoc:
+				options = self.class.read_inheritable_attribute(:children)[meth.to_sym]
 				@children_proxies ||= {}
-				options = self.class.read_inheritable_attribute(:children).detect { |hash| hash[:method] == meth }
 				@children_proxies[meth] ||= ChildrenProxy.new(self, meth.to_s.singularize, options)
 			end
 			
@@ -61,10 +71,17 @@ module Quarto
 				parent_class_name = parent_el_name.classify
 				Kernel.const_get(parent_class_name).new(@element.parent.parent) # Go up two levels, since each child is expected to be inside a collection element
 			end
-			
+	
 			module ClassMethods # :nodoc:
 				# :singleton_method:
-				# Creates an attribute for a child element. +el_name+ must be the singular form. Example:
+				# Creates an attribute for a child element. +el_name+ must be the singular form.
+				#
+				# Options:
+				# * <tt>:element_name</tt> - The name of the child element. Defaults to +method_name+.
+				# * <tt>:wrapper_class</tt> - <tt>:wrapper_class</tt> - The subclass of ElementWrapper::Base to use.
+				#   Defaults to the element name.
+				#
+				# Example:
 				#
 				#   <company>
 				#     <boss>
@@ -75,8 +92,8 @@ module Quarto
 				#   class Company
 				#     child :boss
 				#   end
-				def child(el_name, options = {})
-					write_inheritable_array(:singleton_children, [el_name.to_s])
+				def child(method_name, options = {})
+					write_inheritable_hash(:singleton_children, {method_name.to_sym => options})
 				end
 				
 				# :singleton-method:
@@ -88,6 +105,8 @@ module Quarto
 				#   unless the <tt>:collection_el_name</tt> option is given. If
 				#   the child elements are not wrapped in a collection element at all,
 				#   use <tt>:collection_el_name => nil</tt>.
+				# * <tt>:wrapper_class</tt> - The subclass of ElementWrapper::Base to use.
+				#   Defaults to the singular form of the element name.
 				#
 				#  Example:
 				#
@@ -102,20 +121,17 @@ module Quarto
 				#     children :employees
 				#   end
 				def children(method_name, options = {})
-					write_inheritable_array(:children, [options.merge({
-						:method => method_name.to_sym,
-						:el_name => method_name.to_s.singularize
-					})])
+					write_inheritable_hash(:children, {method_name.to_sym => {:el_name => method_name.to_s.singularize}.merge(options)})
 				end
 				
-				def has_child_named?(singleton_child_el_name) # :nodoc:
+				def has_child_named?(method_name) # :nodoc:
 					return false if read_inheritable_attribute(:singleton_children).nil?
-					read_inheritable_attribute(:singleton_children).include?(singleton_child_el_name.to_s)
+					read_inheritable_attribute(:singleton_children).has_key?(method_name.to_sym)
 				end
 				
 				def has_children_named?(method_name) # :nodoc:
 					return false if read_inheritable_attribute(:children).nil?
-					!read_inheritable_attribute(:children).detect { |hash| hash[:method] == method_name.to_sym }.nil?
+					read_inheritable_attribute(:children).has_key?(method_name.to_sym)
 				end
 				
 				def has_parent_named?(parent_el_name) # :nodoc:

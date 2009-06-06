@@ -1,5 +1,5 @@
 class Location < Quarto::ElementWrapper::Base
 	parent :company
 	
-	element_attrs 'name', 'location'
+	element_attrs 'city', 'state'
 end

@@ -1,8 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/company')
-require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/employee')
-require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/product')
-require File.expand_path(File.dirname(__FILE__) + '/sample_project/models/location')
+require File.expand_path(File.dirname(__FILE__) + '/sample_models')
 
 describe Quarto::ElementWrapper::Children do
 	before :each do
