@@ -114,20 +114,20 @@ describe Quarto::ElementWrapper::Base do
 	
 	context '#==' do
 		before :each do
-			@element_1 = @xml.elements['companies/company[first()]']
+			@element_1 = @xml.elements['companies/company']
 			@element_2 = @xml.elements['companies/company[last()]']
 		end
 		
 		it 'should return true for two ElementWrapper::Base instances that wrap the same element' do
-			ElementWrapper.new(@element_1).should == ElementWrapper.new(@element_1)
+			Quarto::ElementWrapper::Base.new(@element_1).should == Quarto::ElementWrapper::Base.new(@element_1)
 		end
 		
 		it 'should return false for two ElementWrapper::Base instaces that wrap different elements' do
-			ElementWrapper.new(@element_1).should_not == ElementWrapper.new(@element_1)
+			Quarto::ElementWrapper::Base.new(@element_1).should_not == Quarto::ElementWrapper::Base.new(@element_2)
 		end
 		
 		it 'should return false if the second object is not an instance of ElementWrapper::Base' do
-			ElementWrapper.new(@element_1).should_not == 'foo'
+			Quarto::ElementWrapper::Base.new(@element_1).should_not == 'foo'
 		end
 	end
 end

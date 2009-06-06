@@ -18,7 +18,7 @@ describe Quarto::ElementWrapper::Children do
 		
 		it 'should know its children' do
 			@company.should respond_to(:employees)
-			@company.employees.should be_a(Quarto::Children)
+			@company.employees.should be_a(Quarto::ElementWrapper::ChildrenProxy)
 			@company.employees.length.should == 2 # In the sample XML file, 37Signals has two employees.
 			@company.employees.each do |employee|
 				employee.should be_a(Employee)

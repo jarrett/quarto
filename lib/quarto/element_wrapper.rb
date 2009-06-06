@@ -1,16 +1,17 @@
 module Quarto
 	module ElementWrapper
-		# Abstract base class for your models. Put your ElementWrapper subclasses inside the "models"
-		# directory within your project. All files in that directory will be automatically required.
+		# Abstract base class for your models. Put your ElementWrapper::Base subclasses inside the
+		#"models" directory within your project. All files in that directory will be automatically
+		# required.
 		#
-		# Each ElementWrapper subclass corresponds to exactly one XML element.
+		# Each ElementWrapper::Base subclass corresponds to exactly one XML element.
 		# You can specify the model's element name by calling element_name=, but
 		# generally, you just let ElementWrapper use the default, which is the subclass
 		# name in snake_case.
 		#
-		# Inside each ElementWrapper is a REXML::Element. ElementWrapper implements
+		# Inside each ElementWrapper::Base is a REXML::Element. ElementWrapper::Base implements
 		# <tt>method_missing</tt>, allowing you to call that REXML::Element's methods
-		# on the ElementWrapper instance.
+		# on the ElementWrapper::Base instance.
 		#
 		# Instance attributes corresponding to the XML attributes will automatically
 		# be defined. Hwoever, if you want an attribute defined by the text of a child
@@ -26,7 +27,7 @@ module Quarto
 		#
 		# You could then subclass ElementWrapper like this:
 		#
-		#   class Programmer < ElementWrapper
+		#   class Programmer < ElementWrapper::Base
 		#     element_name = 'programmer'
 		#     element_attrs 'name'
 		#   end
@@ -44,7 +45,7 @@ module Quarto
 			
 			# Returns true if both instances come from the same node in the source XML document.
 			def ==(other_wrapped_element)
-				other_wrapped_element.is_a?(Quarto::ElementWrapper) and @element == other_wrapped_element.element
+				other_wrapped_element.is_a?(Quarto::ElementWrapper::Base) and @element == other_wrapped_element.element
 			end
 			
 			# Returns the currently-loaded REXML::Document.
