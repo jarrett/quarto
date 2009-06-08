@@ -89,6 +89,7 @@ module Quarto
 			#
 			# * <tt>:xpath</tt> - An XPath expression to limit the search. If this option is not given, the default XPath is "//element_name"
 			def self.find(quantifier, options = {})
+				raise 'You must call use_xml() in generate.rb before using the models' if xml_doc.nil?
 				raise ArgumentError, "Quantifier must be :all, :first, or :last, but got #{quantifier.inspect}" unless [:all, :first, :last].include?(quantifier)
 				raise ArgumentError, "Options must be a Hash, but got #{options.inspect}" unless options.is_a?(Hash)
 				if options.has_key?(:xpath)
