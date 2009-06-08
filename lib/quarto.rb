@@ -4,6 +4,7 @@ require 'rubygems'
 require 'rexml/document'
 require 'erb'
 require 'active_support/inflector'
+require 'fileutils'
 
 require 'quarto/config'
 require 'quarto/xml_doc'

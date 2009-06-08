@@ -1,6 +1,6 @@
 module Quarto
 	class Rendering # :nodoc: all
-		include UrlHelper
+		include Quarto::UrlHelper
 		
 		def initialize(__erb_template, __locals)
 			__b = binding

@@ -111,7 +111,7 @@ module Quarto
 			else
 				subdir = "#{@output_path}/#{directory}"
 				if !File.exists? subdir
-					Dir.mkdir subdir
+					FileUtils::mkdir_p subdir
 				end
 				path = "#{subdir}/#{filename}"
 			end
@@ -141,6 +141,7 @@ module Quarto
 			
 			if layout
 				layout_template_path = "#{@project_path}/layouts/#{layout}"
+				raise ArgumentError, "Template doesn't exist: #{layout_template_path}" unless File.exists?(layout_template_path)
 				layout_template = ERB.new(File.read(layout_template_path))
 				Rendering.render(layout_template, locals) do
 					page_content
