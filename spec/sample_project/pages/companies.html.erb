@@ -25,9 +25,7 @@
 				<ul>
 					<% company.employees.each do |employee| %>
 						<li>
-							<a href="<%= abs_url("employees/#{urlize(employee.name)}.html") %>">
-								<%= employee.name %>
-							</a>
+							<%= link_to employee.name, employee %>
 						</li>
 					<% end %>
 				</ul>

@@ -1,4 +1,5 @@
 require 'cgi'
+require 'uri'
 
 module Quarto
 	
@@ -29,7 +30,11 @@ module Quarto
 					raise "#{options.class} must define to_path if you want to pass an instance into link_to or url_for"
 				end
 			else
-				return url_for_without_element_wrapper(options)
+				if defined? RAILS_GEM_VERSION
+					return url_for_without_element_wrapper(options)
+				else
+					raise ArgumentError, "Don\'t know how to generate URL from #{options.inspect}"
+				end
 			end
 		end
 		
@@ -44,26 +49,36 @@ module Quarto
 			#
 			# This method is only defined if you're not using Quarto within Rails. If you are,
 			# the Rails <tt>link_to</tt> will not be overriden by this one. However, you can still pass
-			# instances of ElementWrapper::Base in, because Quarto patches <tt>url_for</tt> (which is
+			# instances of <tt>ElementWrapper::Base</tt> in, because Quarto patches <tt>url_for</tt> (which is
 			# called by Rails' <tt>link_to</tt>).
-			def link_to(text, url_or_element_wrapper, options = {})
-				if url_or_element_wrapper.is_a?(String)
-					url = url_or_element_wrapper
-				elsif url_or_element_wrapper.is_a?(Quarto::ElementWrapper::Base)
-					url = url_for(url_or_element_wrapper)
-				else
-					raise ArgumentError, "Expected String or ElementWrapper::Base, but got #{url_or_element_wrapper.inspect}"
+			#
+			# +target+ must be either an instance of <tt>ElementWrapper::Base</tt>, an absolute URL, or
+			# a relative URL.
+			def link_to(text, target, options = {})
+				if !target.is_a?(String) and !target.is_a?(Quarto::ElementWrapper::Base)
+					raise ArgumentError, "Expected String or ElementWrapper::Base, but got #{target.inspect}"
 				end
+				url = url_for(target)
 				options = {:html_attributes => {}}.merge(options)
 				output = "<a href=\"#{url}\""
 				options[:html_attributes].each do |attr, value|
 					output << " #{attr}=\"#{value}\""
 				end
+				output + '>' + text + '</a>'
 			end
 			
 			# Somewhat compatible with the Rails url_for helper.
 			def url_for(options = {})
-				url_for_with_element_wrapper(options)
+				if options.is_a?(String)
+					uri = URI.parse(options)
+					if uri.absolute?
+						uri.to_s
+					else
+						abs_url(uri.to_s)
+					end
+				else
+					url_for_with_element_wrapper(options)
+				end
 			end
 		end
 	end

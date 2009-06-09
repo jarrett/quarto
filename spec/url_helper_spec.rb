@@ -22,53 +22,8 @@ describe Quarto::UrlHelper do
 	end
 	
 	context '#link_to' do
-		it 'should be defined if RAILS_GEM_VERSION is not defined' do
-			if defined? RAILS_GEM_VERSION
-				raise 'RAILS_GEM_VERSION is defined. (It shouldn\'t be when running this spec)'
-			end
-			
-			class TemplateOutsideRails
-				include Quarto::UrlHelper
-			end
-			
-			TemplateOutsideRails.new.should respond_to(:link_to)
-			
-			Object.class_eval do
-				remove_const :TemplateOutsideRails
-			end
-		end
-		
-		it 'should not be redefined if RAILS_GEM_VERSION is defined' do
-			RAILS_GEM_VERSION = 'foo'
-			
-			class RailsTemplate
-				attr_reader :link_to_called
-				
-				def initialize
-					@link_to_called = false
-				end
-				
-				def link_to(*args)
-					@link_to_called = true
-				end
-				
-				include Quarto::UrlHelper
-			end
-			
-			template = RailsTemplate.new
-			template.link_to('bar')
-			template.link_to_called.should == true
-			
-			Object.class_eval do
-				remove_const :RailsTemplate
-				remove_const :RAILS_GEM_VERSION
-			end
-		end
-	end
-
-	context '#url_for' do
 		context 'outside Rails' do
-			it 'should be defined' do
+			before :each do
 				if defined? RAILS_GEM_VERSION
 					raise 'RAILS_GEM_VERSION is defined. (It shouldn\'t be when running this spec)'
 				end
@@ -76,11 +31,108 @@ describe Quarto::UrlHelper do
 				class TemplateOutsideRails
 					include Quarto::UrlHelper
 				end
-				
-				TemplateOutsideRails.new.should respond_to(:url_for)
-				
+			end
+			
+			after :each do
 				Object.class_eval do
 					remove_const :TemplateOutsideRails
+				end
+			end
+			
+			it 'should be defined' do
+				TemplateOutsideRails.new.should respond_to(:link_to)
+			end
+			
+			it 'should call url_for' do
+				template = TemplateOutsideRails.new
+				template.should_receive(:url_for)
+				template.link_to('foo', 'bar')
+			end
+			
+			it 'should return an HTML link' do
+				expected = '<a href="http://example.com/foo">foo</a>'
+				TemplateOutsideRails.new.link_to('foo', 'http://example.com/foo').should == expected
+			end
+		end
+		
+		context 'in Rails' do
+			it 'should not be redefined if RAILS_GEM_VERSION is defined' do
+				RAILS_GEM_VERSION = 'foo'
+				
+				class RailsTemplate
+					attr_reader :link_to_called
+					
+					def initialize
+						@link_to_called = false
+					end
+					
+					def link_to(*args)
+						@link_to_called = true
+					end
+					
+					include Quarto::UrlHelper
+				end
+				
+				template = RailsTemplate.new
+				template.link_to('bar')
+				template.link_to_called.should == true
+				
+				Object.class_eval do
+					remove_const :RailsTemplate
+					remove_const :RAILS_GEM_VERSION
+				end
+			end
+		end
+	end
+
+	context '#url_for' do
+		context 'outside Rails' do
+			before :each do
+				if defined? RAILS_GEM_VERSION
+					raise 'RAILS_GEM_VERSION is defined. (It shouldn\'t be when running this spec)'
+				end
+				
+				class TemplateOutsideRails
+					include Quarto::UrlHelper
+				end
+			end
+			
+			after :each do
+				Object.class_eval do
+					remove_const :TemplateOutsideRails
+				end
+			end
+			
+			it 'should be defined' do
+				TemplateOutsideRails.new.should respond_to(:url_for)
+			end
+			
+			it 'should raise ArgumentError if anything other than a string or an instance of ElementWrapper::Base is passed to it' do
+				class MockWrapper
+					def is_a?(klass); Quarto::ElementWrapper::Base == klass; end	
+					def to_path; 'foo'; end;
+				end
+				TemplateOutsideRails.new.url_for('foo')
+				TemplateOutsideRails.new.url_for(MockWrapper.new)
+				[1, 0.1, Date.new, URI.parse('http://foo.com')].each do |obj|
+					lambda { TemplateOutsideRails.new.url_for(obj) }.should raise_error(ArgumentError)
+				end
+				Object.class_eval do
+					remove_const :MockWrapper
+				end
+			end
+			
+			it 'should call abs_url if the parameter is a relative URL' do
+				['foo', '/foo'].each do |rel_url|
+					template = TemplateOutsideRails.new
+					template.should_receive(:abs_url).with(rel_url)
+					template.url_for(rel_url)
+				end
+			end
+			
+			it 'should not modify an absolute url' do
+				['http://example.com', 'http://example.com/foo', 'https://example.com', 'ftp://example.com'].each do |url|
+					TemplateOutsideRails.new.url_for(url).should == url
 				end
 			end
 		end
