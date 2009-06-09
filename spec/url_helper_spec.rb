@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'uri'
 
 describe Quarto::UrlHelper do
 	include Quarto::UrlHelper
@@ -144,16 +145,17 @@ describe Quarto::UrlHelper do
 				end
 			end
 			
-			it 'should call abs_url if the parameter is a relative URL' do
-				['foo', '/foo'].each do |rel_url|
+			it 'should not call abs_url' do
+				['foo', '../foo', '/foo'].each do |rel_url|
 					template = TemplateOutsideRails.new
-					template.should_receive(:abs_url).with(rel_url)
+					template.should_not_receive(:abs_url)
 					template.url_for(rel_url)
 				end
 			end
 			
-			it 'should not modify an absolute url' do
-				['http://example.com', 'http://example.com/foo', 'https://example.com', 'ftp://example.com'].each do |url|
+			it 'should not modify a url, be it absolute or relative' do
+				['http://example.com', 'http://example.com/foo', 'https://example.com', 'ftp://example.com',
+				'foo', '../foo', '/foo'].each do |url|
 					TemplateOutsideRails.new.url_for(url).should == url
 				end
 			end

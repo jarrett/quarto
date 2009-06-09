@@ -1,5 +1,4 @@
 require 'cgi'
-require 'uri'
 
 module Quarto
 	
@@ -70,12 +69,7 @@ module Quarto
 			# Somewhat compatible with the Rails url_for helper.
 			def url_for(options = {})
 				if options.is_a?(String)
-					uri = URI.parse(options)
-					if uri.absolute?
-						uri.to_s
-					else
-						abs_url(uri.to_s)
-					end
+					options
 				else
 					url_for_with_element_wrapper(options)
 				end
