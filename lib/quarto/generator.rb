@@ -73,6 +73,10 @@ module Quarto
 			@console = @options[:console]
 		end
 		
+		def urls_file_path # :nodoc:
+			@project_path + '/urls.rb'
+		end
+		
 		attr_reader :output_path # :nodoc:
 		
 		protected
@@ -124,9 +128,11 @@ module Quarto
 		# Renders +template+ to a string. Sets local variables within the template to the values given
 		# in +locals+.
 		def render_to_s(template, locals, options = {})
+			require urls_file_path
+			
 			page_template_path = "#{@project_path}/pages/#{template}"
 			page_template = ERB.new(File.read(page_template_path))
-			page_content = Rendering.render(page_template, locals)
+			page_content = Rendering.render(page_template, locals, [Quarto::ProjectUrls])
 			
 			if options.has_key?(:layout)
 				layout = options[:layout]
@@ -143,7 +149,7 @@ module Quarto
 				layout_template_path = "#{@project_path}/layouts/#{layout}"
 				raise ArgumentError, "Template doesn't exist: #{layout_template_path}" unless File.exists?(layout_template_path)
 				layout_template = ERB.new(File.read(layout_template_path))
-				Rendering.render(layout_template, locals) do
+				Rendering.render(layout_template, locals, [Quarto::ProjectUrls]) do
 					page_content
 				end
 			else

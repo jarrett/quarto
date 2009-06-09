@@ -38,23 +38,6 @@ describe Quarto do
 	end
 end
 
-module Quarto
-	# This will be used in the specs below--see the method aliasing
-	def self.testable_generate(&block)
-		GenerationTesting.generation_block = block
-	end
-	
-	module GenerationTesting
-		def self.generation_block
-			@generation_block
-		end
-		
-		def self.generation_block=(block)
-			@generation_block = block
-		end
-	end
-end
-
 describe Quarto::Generator do
 	context '.new' do
 		it 'should accept a path to a project directory' do
@@ -66,32 +49,61 @@ describe Quarto::Generator do
 		include Quarto::UrlHelper
 		
 		before :all do
-			# Quarto.generate will now return the passed block as a proc
-			# instead of envoking the whole framework
-			Quarto.module_eval do
+			module Quarto
+				def self.testable_generate(&block)
+					GenerationTesting.generation_block = block
+				end
+				
+				# Quarto.generate will now return the passed block as a proc
+				# instead of envoking the whole framework.
+				# This would prevent the generation directives from being
+				# processed at all, except that below, we call
+				# @generator.generate with the saved block
 				class << self
-					
 					alias_method :untestable_generate, :generate
 					alias_method :generate, :testable_generate
+				end
+				
+				module GenerationTesting
+					def self.generation_block
+						@generation_block
+					end
+					
+					def self.generation_block=(block)
+						@generation_block = block
+					end
+					
+					def self.last_rendering
+						@last_rendering
+					end
+					
+					def self.last_rendering=(rendering)
+						@last_rendering = rendering
+					end
 				end
 			end
 			
 			@generator = Quarto::Generator.new(SAMPLE_DIR)
 			
-			# Clear the directories
+			# Clear the directories prior to testing
 			FileUtils.rm_rf @generator.output_path
 			
-			# Now that we've aliased the methods and load has been called GenerationTesting.generation_block should be set
+			# Now that we've aliased the methods and load has been called
+			# GenerationTesting.generation_block should be set, so
+			# we can execute the generation block.
 			load @generator.generate_file_path
 			@generator.generate(&Quarto::GenerationTesting.generation_block)
 		end
 		
 		after :all do
 			# Reset Quarto.generate to its old behavior
-			Quarto.module_eval do
+			module Quarto
 				class << self
 					alias_method :generate, :untestable_generate
+					remove_method :testable_generate
 				end
+				
+				remove_const :GenerationTesting
 			end
 		end
 		

@@ -12,8 +12,21 @@ describe Quarto::UrlHelper do
 			urlize('John Smith').should == 'John-Smith'
 		end
 		
-		it 'should not change numbers' do
-			urlize('a10b').should == 'a10b'
+		it 'should not change numbers without decimal points' do
+			['10', '-1', 'a10b'].each do |num|
+				urlize(num).should == num
+			end
+		end
+		
+		it 'should remove the . character' do
+			[
+				['foo.bar', 'foobar'],
+				['.foo', 'foo'],
+				['foo.', 'foo'],
+				['10.5', '105']
+			].each do |input, expected|
+				urlize(input).should == expected
+			end
 		end
 		
 		it 'should not change dashes and underscores' do

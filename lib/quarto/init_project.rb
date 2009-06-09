@@ -14,6 +14,16 @@ Quarto.generate do
 	# render 'companies.html.erb', '', 'companies.html', :companies => Company.find(:all)
 end
 )
+
+	STARTER_URLS_FILE = %q(
+module Quarto
+	module ProjectUrls
+		include Quarto::UrlHelper
+		
+		
+	end
+end
+)
 	# Initialize a new Quarto project at the specified path. Creates a generate.rb file and the necessary subfolders.
 	def self.init_project(project_path)
 		raise ArgumentError, "Expected string, but got #{project_path.inspect}" unless project_path.is_a?(String) and !project_path.empty?
@@ -31,6 +41,12 @@ end
 		unless File.exists?(generate_file)
 			File.open(generate_file, 'w') do |file|
 				file.print(STARTER_GENERATE_FILE)
+			end
+		end
+		urls_file = project_path + '/urls.rb'
+		unless File.exists?(urls_file)
+			File.open(urls_file, 'w') do |file|
+				file.print(STARTER_URLS_FILE)
 			end
 		end
 		true
