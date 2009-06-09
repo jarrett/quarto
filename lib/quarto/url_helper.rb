@@ -59,9 +59,9 @@ module Quarto
 					raise ArgumentError, "Expected String or ElementWrapper::Base, but got #{target.inspect}"
 				end
 				url = url_for(target)
-				options = {:html_attributes => {}}.merge(options)
+				options = {:html_options => {}}.merge(options)
 				output = "<a href=\"#{url}\""
-				options[:html_attributes].each do |attr, value|
+				options[:html_options].each do |attr, value|
 					output << " #{attr}=\"#{value}\""
 				end
 				output + '>' + text + '</a>'

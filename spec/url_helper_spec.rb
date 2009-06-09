@@ -53,6 +53,15 @@ describe Quarto::UrlHelper do
 				expected = '<a href="http://example.com/foo">foo</a>'
 				TemplateOutsideRails.new.link_to('foo', 'http://example.com/foo').should == expected
 			end
+			
+			it 'should use :html_options' do
+				expected = '<a href="http://example.com" onclick="javascript:alert(\'foo\');">Click me</a>'
+				template = TemplateOutsideRails.new
+				template.link_to(
+					'Click me', 'http://example.com',
+					:html_options => {:onclick => 'javascript:alert(\'foo\');'}
+				).should == expected
+			end
 		end
 		
 		context 'in Rails' do
