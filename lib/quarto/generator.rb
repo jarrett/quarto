@@ -130,9 +130,11 @@ module Quarto
 		def render_to_s(template, locals, options = {})
 			require urls_file_path
 			
+			mixins = [Quarto::ProjectUrls, Quarto::RailsHelper, Quarto::UrlHelper]
+			
 			page_template_path = "#{@project_path}/pages/#{template}"
 			page_template = ERB.new(File.read(page_template_path))
-			page_content = Rendering.render(page_template, locals, [Quarto::ProjectUrls])
+			page_content = Rendering.render(page_template, locals, mixins)
 			
 			if options.has_key?(:layout)
 				layout = options[:layout]
@@ -149,7 +151,7 @@ module Quarto
 				layout_template_path = "#{@project_path}/layouts/#{layout}"
 				raise ArgumentError, "Template doesn't exist: #{layout_template_path}" unless File.exists?(layout_template_path)
 				layout_template = ERB.new(File.read(layout_template_path))
-				Rendering.render(layout_template, locals, [Quarto::ProjectUrls]) do
+				Rendering.render(layout_template, locals, mixins) do
 					page_content
 				end
 			else

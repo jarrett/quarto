@@ -1,7 +1,5 @@
 module Quarto
 	class Rendering # :nodoc: all
-		include Quarto::UrlHelper
-		
 		def initialize(__erb_template, __locals, __mixins)
 			unless __erb_template.is_a?(ERB)
 				raise ArgumentError, "Expected ERB but got #{__erb_template.inspect}"
