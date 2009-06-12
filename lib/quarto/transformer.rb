@@ -121,13 +121,13 @@ module Quarto
 		# this method.
 		def recursive_transform(element, raise_on_unrecognized_element)
 			if element.is_a?(REXML::Element)
-				if literal?(element)
+				if respond_to?("transform_#{element.name}")
+					send("transform_#{element.name}", element, raise_on_unrecognized_element)
+				elsif literal?(element)
 					contents = element.children.inject('') do |result, child|
 						result + recursive_transform(child, raise_on_unrecognized_element)
 					end
 					content_tag(element.name, contents, element.attributes)
-				elsif respond_to?("transform_#{element.name}")
-					send("transform_#{element.name}", element, raise_on_unrecognized_element)
 				elsif raise_on_unrecognized_element
 					raise UnrecognizedElementError, "Unrecognized element: #{element.name}"
 				else

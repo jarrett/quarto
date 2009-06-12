@@ -86,37 +86,19 @@ describe Quarto::Transformer do
 			begin
 				class CustomizedTestTransformer < TestTransformer
 					def transform_p(p_element, raise_on_unrecognized_element)
-						%x(<div class="paragraph">#{p_element.text}</div>)
+						%Q(<div class="paragraph">#{p_element.text}</div>)
 					end
 				end
 			
 				t = CustomizedTestTransformer.new
 				result = REXML::Document.new(t.transform(@doc))
-				
-				raise 'not implemented'
+				result.should have_element('div', :attributes => {'class' => 'paragraph'}, :text => 'Foo')
+				result.should have_element('div', :attributes => {'class' => 'paragraph'}, :text => 'Bar')
 			ensure
 				Object.class_eval do
 					remove_const :CustomizedTestTransformer
 				end
 			end				
-		end
-	end
-	
-	context '#element' do
-		it 'should return a REXML::Element with the given name' do
-			raise 'not implemented'
-		end
-		
-		it 'should attach the given attributes to the created element' do
-			raise 'not implemented'
-		end
-		
-		it 'should not require attributes' do
-			raise 'not implemented'
-		end
-		
-		it 'should create a tree if a block is given' do
-			raise 'not implemented'
 		end
 	end
 	
@@ -134,7 +116,13 @@ describe Quarto::Transformer do
 		end
 		
 		it 'should define literal? so that it returns true for any element on the list and false for any other' do
-			raise 'not implemented'
+			t = TestTransformer.new
+			['doc', 'div', 'p'].each do |el_name|
+				t.send(:literal?, REXML::Element.new(el_name)).should == true
+			end
+			['foo', 'bar', 'baz'].each do |el_name|
+				t.send(:literal?, REXML::Element.new(el_name)).should == false
+			end
 		end
 		
 		it 'should have no effect if literal? is subsequently defined' do
@@ -144,7 +132,10 @@ describe Quarto::Transformer do
 				end
 			end
 			
-			raise 'not implemented'
+			t = TestTransformer.new
+			['doc', 'div', 'p'].each do |el_name|
+				t.send(:literal?, REXML::Element.new(el_name)).should == false
+			end
 		end
 	end
 end
