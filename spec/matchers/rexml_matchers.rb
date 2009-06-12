@@ -37,17 +37,24 @@ module Quarto
 			end
 			
 			def node_matches?(node)
-				puts 'Looking for: ' + @element_name.inspect + ' Found: ' + node.name.inspect
 				if node.name != @element_name
 					return false
 				end
-				if @options.has_key?(:attributes) and node.attributes != @options[:attributes]
+				if @options.has_key?(:attributes) and rexml_attrs_to_hash(node.attributes) != @options[:attributes]
 					return false
 				end
 				if @options.has_key?(:text) and node.text != @options[:text]
 					return false
 				end
 				true
+			end
+			
+			def rexml_attrs_to_hash(rexml_attrs)
+				hash = {}
+				rexml_attrs.each do |attr_name, value|
+					hash[attr_name] = value
+				end
+				hash
 			end
 		end
 		

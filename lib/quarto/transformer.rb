@@ -126,8 +126,8 @@ module Quarto
 						result + recursive_transform(child, raise_on_unrecognized_element)
 					end
 					content_tag(element.name, contents, element.attributes)
-				elsif respond_to?("tranform_#{element.name}")
-					send("tranform_#{element.name}", element, raise_on_unrecognized_element)
+				elsif respond_to?("transform_#{element.name}")
+					send("transform_#{element.name}", element, raise_on_unrecognized_element)
 				elsif raise_on_unrecognized_element
 					raise UnrecognizedElementError, "Unrecognized element: #{element.name}"
 				else

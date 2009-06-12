@@ -59,11 +59,11 @@ describe Quarto::Transformer do
 			begin
 				class CustomizedTestTransformer < TestTransformer
 					def transform_book(book_element, raise_on_unrecognized_element)
-						%x(
+						%Q(
 							<div class="book">
 								<h1 class="title">#{book_element.elements['title'].text}</h1>
-								<h2 class="author">#{book_element.elements['author'].text}</h1>
-								<img src="#{book_elements.elements['cover_url']}"/>
+								<h2 class="author">#{book_element.elements['author'].text}</h2>
+								<img src="#{book_element.elements['cover_url'].text}"/>
 							</div>
 						)
 					end
