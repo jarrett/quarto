@@ -12,16 +12,32 @@ module Quarto
 			end
 			
 			def failure_message
-				"Expected element '#{@element_name}' to be in:\n\n#{@target.to_s}"
+				"Expected element '#{element_desc}' to be in:\n\n#{@target.to_s}"
 			end
 			
 			def negative_failure_message
-				"Expected element '#{@element_name}' not to be in:\n\n#{@target.to_s}"
+				"Expected element '#{element_desc}' not to be in:\n\n#{@target.to_s}"
 			end
 			
 			protected
 			
+			def element_desc
+				desc = @element_name
+				if @options.has_key?(:attributes)
+					desc << " with attributes: #{@options[:attributes].inspect}"
+					if @options.has_key?(:text)
+						desc << " and text: '#{@options[:text]}'"
+					end
+				else
+					if @options.has_key?(:text)
+						desc << " with text: '#{@options[:text]}'"
+					end
+				end
+				desc
+			end
+			
 			def node_matches?(node)
+				puts 'Looking for: ' + @element_name.inspect + ' Found: ' + node.name.inspect
 				if node.name != @element_name
 					return false
 				end
@@ -31,6 +47,7 @@ module Quarto
 				if @options.has_key?(:text) and node.text != @options[:text]
 					return false
 				end
+				true
 			end
 		end
 		

@@ -34,7 +34,7 @@ module Quarto
 		#     end
 		#   end 
 		def self.literals(*args)
-			class_eval(%x(
+			class_eval(%Q(
 				def literal?(element)
 					[#{args.collect { |e| "'#{e}'" }.join(',')}].include?(element.name)
 				end
