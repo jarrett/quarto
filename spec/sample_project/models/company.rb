@@ -1,5 +1,5 @@
 class Company < Quarto::ElementWrapper::Base
-	element_attrs :name, :industry
+	element_attrs :name, :industry, :description
 	
 	children :employees
 	

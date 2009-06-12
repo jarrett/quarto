@@ -1,8 +1,13 @@
 Quarto is a Ruby framework for generating collections of documents from XML. Potential applications
-include web sites and e-books. It's built on top of ERB and REXML.
+include web sites and e-books. It's built on top of ERB and REXML. It works as a standalone
+application and inside Rails.
 
 Quarto was built with HTML output in mind, but there's nothing to prevent you from outputting
 to any other format. You could even output to an interpolated scripting language like PHP.
+
+As of the inception of Quarto, there is no cross-platform XSLT gem. So, Quarto comes with its
+own alternative to XSLT in the form of the Tranformer class and the TransformationHelper
+module.
 
 Why Quarto?
 ===========

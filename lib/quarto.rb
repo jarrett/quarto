@@ -15,6 +15,9 @@ require 'quarto/element_wrapper'
 require 'quarto/children'
 require 'quarto/rendering'
 require 'quarto/generator'
+require 'quarto/transformer'
+require 'quarto/html_transformer'
+require 'quarto/transformation_helper'
 require 'quarto/init_project'
 
 # Quarto is a Ruby framework for generating collections of documents from XML. Potential applications

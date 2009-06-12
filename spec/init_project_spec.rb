@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'fileutils'
 
 describe Quarto do
-	include FileMatchers
+	include Quarto::FileMatchers
 	
 	context '.init_project on an empty directory' do
 		before :all do

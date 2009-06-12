@@ -7,7 +7,7 @@ describe Quarto::ElementWrapper::Base do
 		@xml = Quarto.xml_doc
 	end
 	
-	context 'wrapping an element with attributes' do
+	context 'wrapping an element with attributes and child elements' do
 		before :each do
 			@element = @xml.elements['companies/company']
 			@company = Company.new(@element)
@@ -20,6 +20,11 @@ describe Quarto::ElementWrapper::Base do
 		it 'should define attributes from specified elements' do
 			@company.should respond_to(:name)
 			@company.name.should == '37Signals'
+		end
+		
+		it 'should return a REXML::Element if an elemement_attr contains markup' do
+			company = Company.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
+			company.description.should be_a(REXML::Element)
 		end
 		
 		it 'should define methods from XML attributes by default' do

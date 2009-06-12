@@ -124,8 +124,15 @@ module Quarto
 				end
 				if element_attrs = self.class.read_inheritable_attribute(:element_attrs)
 					element_attrs.each do |el_name|
-						raise ArgumentError, "Expected <#{@element.name}> to have child <#{el_name}>" if @element.elements[el_name.to_s].nil?
-						@attributes[el_name.to_sym] = typecast_text(@element.elements[el_name.to_s].text)
+						if child_el = @element.elements[el_name.to_s]
+							if child_el.elements.empty?
+								@attributes[el_name.to_sym] = typecast_text(child_el.text)
+							else
+								@attributes[el_name.to_sym] = child_el
+							end
+						else
+							@attributes[el_name.to_sym] = nil
+						end
 					end
 				end
 				if text_attr = self.class.read_inheritable_attribute(:text_attr)

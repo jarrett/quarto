@@ -10,7 +10,7 @@ begin
 		gemspec.authors = ['Jarrett Colby']
 		gemspec.files = FileList['[A-Z]*', '{bin,lib,test}/**/*']
 		gemspec.executables = 'quarto'
-		gemspec.add_dependency('activesupport', '>= 2.3.2')
+		gemspec.add_dependency('activesupport', '~> 2.3.2')
 	end
 rescue LoadError
 	puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"

@@ -30,6 +30,10 @@
 					<% end %>
 				</ul>
 			<% end %>
+			
+			<% unless company.description.nil? %>
+				<%= transform_xml company.description %>
+			<% end %>
 		</li>
 	<% end %>
 </ul>

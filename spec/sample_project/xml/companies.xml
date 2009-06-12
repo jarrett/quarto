@@ -16,9 +16,11 @@
 	<company reality="fictional">
 		<name>Mega-lo-Mart</name>
 		<industry>Retail</industry>
+		
 		<mascot>
 			<name>Chuck Mangione</name>
 		</mascot>
+		
 		<employees>
 			<employee>
 				<name>Hank Hill</name>
@@ -40,6 +42,14 @@
 			<city>Los Angeles</city>
 			<state>California</state>
 		</location>
+		
+		<description>
+			<p>Mega-lo-Mart is a parody of big-box stores featured in <tv>King of the Hill</tv>.</p>
+			
+			<p>It is featured in Wikipedia's
+				<a href="http://en.wikipedia.org/wiki/List_of_fictional_companies">List&nbsp;of&nbsp;Fictional&nbsp;Companies.</a>
+			</p>
+		</description>
 	</company>
 	
 	<company reality="fictional">

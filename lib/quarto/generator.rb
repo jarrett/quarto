@@ -41,7 +41,7 @@ module Quarto
 	# This class responds to all the directives that are available for use within
 	# a generate.rb file.
 	class Generator
-		include UrlHelper
+		include Quarto::UrlHelper
 		
 		# Sets the name of the default layout file in the layouts directory. If
 		# default_layout isn't specified, the default layout is the first file matching <tt>default.*</tt>.
@@ -130,7 +130,7 @@ module Quarto
 		def render_to_s(template, locals, options = {})
 			require urls_file_path
 			
-			mixins = [Quarto::ProjectUrls, Quarto::RailsHelper, Quarto::UrlHelper]
+			mixins = [Quarto::ProjectUrls, Quarto::RailsHelper, Quarto::UrlHelper, Quarto::TransformationHelper]
 			
 			page_template_path = "#{@project_path}/pages/#{template}"
 			page_template = ERB.new(File.read(page_template_path))
