@@ -9,6 +9,7 @@ describe Quarto::TransformationHelper do
 				<div>
 					<p>Foo</p>
 					<p><a href="http://example.com">Bar</a></p>
+					<p>Baz&mdash;Baz</p>
 				</div>
 			))
 		end
@@ -28,6 +29,10 @@ describe Quarto::TransformationHelper do
 				t = Quarto::HtmlTransformer.new
 				Quarto::HtmlTransformer.should_receive(:new).and_return(t)
 				transform_xml(@html)
+			end
+			
+			it 'should return the original HTML' do
+				REXML::Document.new(transform_xml(@html)).to_s.should == @html.to_s.strip
 			end
 		end
 	end

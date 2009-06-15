@@ -47,7 +47,13 @@ module Quarto
 		# on the rules you've set up, the result may
 		# be XML or something else altogether.
 		#
-		# +element+ must be a <tt>REXML::Element</tt>.
+		# +element+ must be a <tt>REXML::Element</tt>
+		# or a subclass thereof. If +element+ is a
+		# <tt>REXML::Document</tt>, the document root and all
+		# its children will be transformed. If +element+
+		# is a <tt>REXML::Element</tt>, only the element's
+		# descendents will be tranformed; +element+ itself
+		# will not be used.
 		#
 		# By default, unrecognized elements (and all their
 		# descendants) will be ommited from the result tree.
@@ -60,7 +66,11 @@ module Quarto
 			if element.is_a?(REXML::Document)
 				recursive_transform(element.root, raise_on_unrecognized_element)
 			else
-				recursive_transform(element, raise_on_unrecognized_element)
+				result = ''
+				element.children.each do |child|
+					result << recursive_transform(child, raise_on_unrecognized_element)
+				end
+				result
 			end
 		end
 		

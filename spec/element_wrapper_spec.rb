@@ -22,9 +22,10 @@ describe Quarto::ElementWrapper::Base do
 			@company.name.should == '37Signals'
 		end
 		
-		it 'should return a REXML::Element if an elemement_attr contains markup' do
+		it 'should return the attribute\'s REXML::Element if an element_attr contains markup' do
 			company = Company.find(:first, :xpath => "//company[name='Mega-lo-Mart']")
 			company.description.should be_a(REXML::Element)
+			company.description.name.should == 'description'
 		end
 		
 		it 'should define methods from XML attributes by default' do
