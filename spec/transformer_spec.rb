@@ -38,6 +38,13 @@ describe Quarto::Transformer do
 		
 		it 'should return a string' do
 			@t.transform(@doc).should be_a(String)
+			@t.transform(@doc.root).should be_a(String)
+			@t.transform(REXML::Document.new('')).should be_a(String)
+		end
+		
+		it 'should raise if passed anything other than a REXML::Element' do
+			lambda { @t.transform(nil) }.should raise_error(ArgumentError, 'Expected REXML::Element but got nil')
+			lambda { @t.transform('foo') }.should raise_error(ArgumentError, 'Expected REXML::Element but got "foo"')
 		end
 		
 		it 'should not transform elements that lack custom transform methods and for which literal? returns true' do
