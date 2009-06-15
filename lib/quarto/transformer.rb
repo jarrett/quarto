@@ -9,7 +9,7 @@ module Quarto
 	#
 	#   class MyTranformer < Quarto::Transformer
 	#     # This method will handle all <book> elements
-	#     def transform_book(book_element)
+	#     def transform_book(book_element, raise_on_unrecognized_element)
 	#        # Return whatever string you like
 	#        # raise_on_unrecognized_element is provided
 	#        # so that you can pass it to recursive_transform
@@ -146,6 +146,21 @@ module Quarto
 			else
 				element.to_s
 			end
+		end
+		
+		# Replaces +element+ with +replace_with+, adding any
+		# +attributes+. This is a convenience method for use
+		# inside a custom transform method. It's not infinitely
+		# flexible, but it simplifies a common task. Calls
+		# recursive_transform on +element+'s children.
+		def replace_element(element, replace_with, raise_on_unrecognized_element, attributes = {})
+			raise ArgumentError, "Expected REXML::Element but got #{element.inspect}" unless element.is_a?(REXML::Element)
+			raise ArgumentError, "Expected String but got #{replace_with.inspect}" unless replace_with.is_a?(String)
+			raise ArgumentError, "Expected Hash but got #{attributes.inspect}" unless attributes.is_a?(Hash)
+			contents = element.children.inject('') do |result, child|
+				result + recursive_transform(child, raise_on_unrecognized_element)
+			end
+			content_tag(replace_with, contents, attributes)
 		end
 	end
 	

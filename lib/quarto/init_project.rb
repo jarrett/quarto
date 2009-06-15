@@ -4,7 +4,8 @@ module Quarto
 		'models',
 		'output',
 		'pages',
-		'xml'
+		'xml',
+		'transformers'
 	]
 
 	STARTER_GENERATE_FILE = %q(

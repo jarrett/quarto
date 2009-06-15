@@ -145,4 +145,22 @@ describe Quarto::Transformer do
 			end
 		end
 	end
+	
+	context '#replace_element' do
+		before :each do
+			@html = REXML::Document.new('<p><tv>The Office</tv> is a popular show.</p>')
+			@tv_element = REXML::XPath.first(@html, '//tv')
+			@t = Quarto::HtmlTransformer.new
+		end
+		
+		it 'should substitute the given elements and attributes' do
+			output = @t.send(:replace_element, @tv_element, 'cite', false, {'class' => 'tv_show'})
+			REXML::Document.new(output).should have_element('cite', :attributes => {'class' => 'tv_show'}, :text => 'The Office')
+		end
+		
+		it 'should pass the contents of the replaced tag to recursive_transform' do
+			@t.should_receive(:recursive_transform).with(@tv_element.children[0], false).and_return('The Office')
+			@t.send(:replace_element, @tv_element, 'cite', false, {'class' => 'tv_show'})
+		end
+	end
 end

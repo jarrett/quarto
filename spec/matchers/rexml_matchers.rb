@@ -8,21 +8,30 @@ module Quarto
 			
 			def matches?(target)
 				@target = target
+				return false unless @target.is_a?(REXML::Element)
 				!@target.find_first_recursive { |node| node_matches?(node) }.nil?
 			end
 			
 			def failure_message
-				"Expected element '#{element_desc}' to be in:\n\n#{@target.to_s}"
+				if @target.is_a?(REXML::Element)
+					"Expected element #{element_desc} to be in:\n\n#{@target.to_s}"
+				else
+					"Expected #{@target.inspect} to be a REXML::Element"
+				end
 			end
 			
 			def negative_failure_message
-				"Expected element '#{element_desc}' not to be in:\n\n#{@target.to_s}"
+				if @target.is_a?(REXML::Element)
+					"Expected element #{element_desc} not to be in:\n\n#{@target.to_s}"
+				else
+					"Expected #{@target.inspect} to be a REXML::Element"
+				end
 			end
 			
 			protected
 			
 			def element_desc
-				desc = @element_name
+				desc = '<' + @element_name + '>'
 				if @options.has_key?(:attributes)
 					desc << " with attributes: #{@options[:attributes].inspect}"
 					if @options.has_key?(:text)
