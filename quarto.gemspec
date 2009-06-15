@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{quarto}
-  s.version = "1.3.0"
+  s.version = "1.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jarrett Colby"]
-  s.date = %q{2009-06-10}
+  s.date = %q{2009-06-15}
   s.default_executable = %q{quarto}
   s.description = %q{Quarto is a Ruby framework for generating collections of documents from XML. It steps in where XSLT just won't cut it. Potential applications include web sites and e-books. It's built on top of ERB and REXML.}
   s.email = %q{jarrett@uchicago.edu}
@@ -24,14 +24,16 @@ Gem::Specification.new do |s|
      "lib/quarto/config.rb",
      "lib/quarto/element_wrapper.rb",
      "lib/quarto/generator.rb",
+     "lib/quarto/html_transformer.rb",
      "lib/quarto/inheritable_attributes.rb",
      "lib/quarto/init_project.rb",
      "lib/quarto/rails_helper.rb",
      "lib/quarto/rendering.rb",
+     "lib/quarto/transformation_helper.rb",
+     "lib/quarto/transformer.rb",
      "lib/quarto/url_helper.rb",
      "lib/quarto/xml_doc.rb",
-     "quarto.gemspec",
-     "test.rb"
+     "quarto.gemspec"
   ]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/jarrett/quarto}
@@ -45,6 +47,7 @@ Gem::Specification.new do |s|
      "spec/generator_spec.rb",
      "spec/init_project_spec.rb",
      "spec/matchers/file_matchers.rb",
+     "spec/matchers/rexml_matchers.rb",
      "spec/rendering_spec.rb",
      "spec/sample_models.rb",
      "spec/sample_project/generate.rb",
@@ -55,6 +58,8 @@ Gem::Specification.new do |s|
      "spec/sample_project/models/product.rb",
      "spec/sample_project/urls.rb",
      "spec/spec_helper.rb",
+     "spec/transformation_helper_spec.rb",
+     "spec/transformer_spec.rb",
      "spec/url_helper_spec.rb"
   ]
 
@@ -63,11 +68,11 @@ Gem::Specification.new do |s|
     s.specification_version = 2
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<activesupport>, [">= 2.3.2"])
+      s.add_runtime_dependency(%q<activesupport>, ["~> 2.3.2"])
     else
-      s.add_dependency(%q<activesupport>, [">= 2.3.2"])
+      s.add_dependency(%q<activesupport>, ["~> 2.3.2"])
     end
   else
-    s.add_dependency(%q<activesupport>, [">= 2.3.2"])
+    s.add_dependency(%q<activesupport>, ["~> 2.3.2"])
   end
 end
