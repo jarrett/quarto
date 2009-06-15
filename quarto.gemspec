@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{quarto}
-  s.version = "1.4.1"
+  s.version = "1.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jarrett Colby"]
@@ -57,6 +57,7 @@ Gem::Specification.new do |s|
      "spec/sample_project/models/location.rb",
      "spec/sample_project/models/mascot.rb",
      "spec/sample_project/models/product.rb",
+     "spec/sample_project/transformers/descriptions_transformer.rb",
      "spec/sample_project/urls.rb",
      "spec/spec_helper.rb",
      "spec/transformation_helper_spec.rb",
