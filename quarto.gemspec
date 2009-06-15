@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{quarto}
-  s.version = "1.4.0"
+  s.version = "1.4.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jarrett Colby"]
@@ -45,6 +45,7 @@ Gem::Specification.new do |s|
     "spec/children_spec.rb",
      "spec/element_wrapper_spec.rb",
      "spec/generator_spec.rb",
+     "spec/html_tranformer_spec.rb",
      "spec/init_project_spec.rb",
      "spec/matchers/file_matchers.rb",
      "spec/matchers/rexml_matchers.rb",
