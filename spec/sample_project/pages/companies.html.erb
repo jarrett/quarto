@@ -34,7 +34,7 @@
 			<% if company.description.nil? %>
 				<p>No description.</p>
 			<% else %>
-				<%= Quarto::HtmlTransformer.new.transform company.description %>
+				<%= transform_xml(company.description, DescriptionsTransformer) %>
 			<% end %>
 		</li>
 	<% end %>
