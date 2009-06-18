@@ -17,8 +17,13 @@ module Quarto
 		# Generates an absolute URL, using the <tt>:site_root</tt> config value. (To change <tt>:site_root</tt>,
 		# put something like this in <tt>generate.rb</tt>:
 		#   config(:site_root, 'http://your_domain.com/whatever')
-		def abs_url(str)
+		def abs_path(str)
 			"#{Quarto.config[:site_root]}#{str}"
+		end
+		
+		def abs_url(str)
+			warn 'Quarto::UrlHelper#abs_url is deprecated. Use abs_path instead.'
+			abs_path(str)
 		end
 		
 		def url_for_with_element_wrapper(options = {})

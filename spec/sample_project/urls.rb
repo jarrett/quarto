@@ -3,7 +3,7 @@ module Quarto
 		include Quarto::UrlHelper
 		
 		def companies_url
-			abs_url('companies.html')
+			abs_path('companies.html')
 		end
 	end
 end

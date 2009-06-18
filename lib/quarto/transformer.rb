@@ -17,30 +17,6 @@ module Quarto
 	#     end
 	#   end
 	class Transformer
-		# Macro to define the <tt>literal?</tt> method. Accepts
-		# one or more element names.
-		#
-		# Example:
-		#
-		#   class MyTransformer < Quarto::Transformer
-		#     literals 'div', 'p', 'a'
-		#   end
-		#
-		# The above is equivalent to:
-		#
-		#   class MyTransformer < Quarto::Transformer
-		#     def literal?(element)
-		#       ['div', 'p', 'a'].include?(element.name)
-		#     end
-		#   end 
-		def self.literals(*args)
-			class_eval(%Q(
-				def literal?(element)
-					[#{args.collect { |e| "'#{e}'" }.join(',')}].include?(element.name)
-				end
-			))
-		end
-		
 		# Recursively applies the transformation rules
 		# you've defined to +element+ and its children,
 		# returning the results as a string. Depending
@@ -76,7 +52,18 @@ module Quarto
 		
 		protected
 		
-		def content_tag(tag_name, *args) # :nodoc:
+		# Creates an XML tag with the specified name, returning a string.
+		# This method is meant to be called by subclasses of
+		# <tt>Transformer</tt>.
+		#
+		# Example:
+		#
+		#   content_tag('img', 'src' => 'http://example.com/image.jpg')
+		#
+		# If you need to use an absolute URL for something, e.g. an image,
+		# you should include <tt>Quarto::UrlHelper</tt> in your
+		# <tt>Transformer</tt> subclass.
+		def content_tag(tag_name, *args)
 			if args.last.is_a?(Hash)
 				attributes = args.pop
 			else
@@ -124,6 +111,30 @@ module Quarto
 		# See <tt>HtmlTransformer</tt> for an example implementation.
 		def literal?(element)
 			false
+		end
+		
+		# Macro to define the <tt>literal?</tt> method. Accepts
+		# one or more element names.
+		#
+		# Example:
+		#
+		#   class MyTransformer < Quarto::Transformer
+		#     literals 'div', 'p', 'a'
+		#   end
+		#
+		# The above is equivalent to:
+		#
+		#   class MyTransformer < Quarto::Transformer
+		#     def literal?(element)
+		#       ['div', 'p', 'a'].include?(element.name)
+		#     end
+		#   end 
+		def self.literals(*args)
+			class_eval(%Q(
+				def literal?(element)
+					[#{args.collect { |e| "'#{e}'" }.join(',')}].include?(element.name)
+				end
+			))
 		end
 		
 		# Recursively transform the +element+ and all its children,

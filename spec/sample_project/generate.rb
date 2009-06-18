@@ -1,5 +1,5 @@
 Quarto.generate do
-	config(:site_root, '') # This determines how abs_url works. If you need your absolute URLs to be prepended with something, you can put it here.
+	config(:site_root, '') # This determines how abs_path works. If you need your absolute URLs to be prepended with something, you can put it here.
 
 	use_xml('companies.xml')
 

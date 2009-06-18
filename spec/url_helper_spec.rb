@@ -145,10 +145,11 @@ describe Quarto::UrlHelper do
 				end
 			end
 			
-			it 'should not call abs_url' do
+			it 'should not call abs_url or abs_path' do
 				['foo', '../foo', '/foo'].each do |rel_url|
 					template = TemplateOutsideRails.new
 					template.should_not_receive(:abs_url)
+					template.should_not_receive(:abs_path)
 					template.url_for(rel_url)
 				end
 			end
