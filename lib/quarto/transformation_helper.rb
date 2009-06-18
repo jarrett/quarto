@@ -14,7 +14,7 @@ module Quarto
 		#
 		# If you do not specify a default class,
 		# <tt>HtmlTransformer</tt> will be used.
-		def transform_xml(element, transformer_class = Quarto::HtmlTransformer)
+		def transform_xml(element, transformer_class = Quarto::HtmlTransformer, raise_on_unrecognized_element = true)
 			raise ArgumentError, "Expected REXML::Element but got #{element.inspect}" unless element.is_a?(REXML::Element)
 			class_error = "Expected subclass of Tranformer but got #{transformer_class.inspect}"
 			raise ArgumentError, class_error unless transformer_class.is_a?(Class)
@@ -23,7 +23,7 @@ module Quarto
 				klass = klass.superclass
 			end
 			raise ArgumentError, class_error unless Quarto::Transformer == klass
-			transformer_class.new.transform(element)
+			transformer_class.new.transform(element, raise_on_unrecognized_element)
 		end
 	end
 end
