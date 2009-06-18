@@ -60,9 +60,9 @@ module Quarto
 		#
 		#   content_tag('img', 'src' => 'http://example.com/image.jpg')
 		#
-		# If you need to use an absolute URL for something, e.g. an image,
+		# If you need to use an absolute path for something, e.g. an image,
 		# you should include <tt>Quarto::UrlHelper</tt> in your
-		# <tt>Transformer</tt> subclass.
+		# <tt>Transformer</tt> subclass and call <tt>abs_path</tt>.
 		def content_tag(tag_name, *args)
 			if args.last.is_a?(Hash)
 				attributes = args.pop
