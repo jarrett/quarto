@@ -14,7 +14,7 @@ module Quarto
 			end
 		end
 		
-		# Generates an absolute URL, using the <tt>:site_root</tt> config value. (To change <tt>:site_root</tt>,
+		# Generates an absolute path, using the <tt>:site_root</tt> config value. (To change <tt>:site_root</tt>,
 		# put something like this in <tt>generate.rb</tt>:
 		#   config(:site_root, 'http://your_domain.com/whatever')
 		def abs_path(str)
@@ -24,6 +24,14 @@ module Quarto
 		def abs_url(str)
 			warn 'Quarto::UrlHelper#abs_url is deprecated. Use abs_path instead.'
 			abs_path(str)
+		end
+		
+		# Generates a relative path based on the location of the current output file and +path+.
+		# +path+ must be relative to the project's output directory. For example, if
+		# the current output file is in <tt>output/employees</tt>, and you call
+		# <tt>relative_path('images/foo.jpg')</tt>, the result will be <tt>../images/foo.jpg</tt>.
+		def relative_path(path)
+			
 		end
 		
 		def url_for_with_element_wrapper(options = {})

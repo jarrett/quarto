@@ -205,4 +205,40 @@ describe Quarto::UrlHelper do
 			end
 		end
 	end
+	
+	context '#relative_path' do
+		before :all do
+			class MockRendering
+				include Quarto::UrlHelper
+				
+				def initialize(output_file_path)
+					@output_file_path = output_file_path
+				end
+				
+				attr_accessor :output_file_path
+			end
+		end
+		
+		after :all do
+			Object.class_eval do
+				remove_const :MockRendering
+			end
+		end
+		
+		it 'should call output_file_path' do
+			rendering = MockRendering.new('employees')
+			rendering.should_receive('output_file_path').and_return('employees')
+			rendering.relative_path('images/foo.jpg')
+		end
+		
+		it 'should derive the correct relative path from output_file_path to the given file' do
+			rendering = MockRendering.new('employees')
+			rendering.relative_path('images/foo.jpg').should == '../images/foo.jpg'
+		end
+		
+		it 'should work for complex directory structures' do
+			rendering = MockRendering.new('countries/companies/employees')
+			rendering.relative_path('assets/images/foo.jpg').should == '../../../assets/images/foo.jpg'
+		end
+	end
 end
