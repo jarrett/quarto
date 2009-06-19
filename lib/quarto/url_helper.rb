@@ -31,7 +31,17 @@ module Quarto
 		# the current output file is in <tt>output/employees</tt>, and you call
 		# <tt>relative_path('images/foo.jpg')</tt>, the result will be <tt>../images/foo.jpg</tt>.
 		def relative_path(path)
-			
+			current_hierarchy = output_file_path.split('/')
+			target_hierarchy = path.split('/')
+			while current_hierarchy[0] == target_hierarchy[0]
+				current_hierarchy.shift
+				target_hierarchy.shift
+			end
+			rel_path = current_hierarchy.inject('') do |result, dir|
+				result + '../'
+			end
+			#puts target_hierarchy.inspect
+			rel_path << target_hierarchy.join('/')
 		end
 		
 		def url_for_with_element_wrapper(options = {})

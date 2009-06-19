@@ -237,8 +237,14 @@ describe Quarto::UrlHelper do
 		end
 		
 		it 'should work for complex directory structures' do
-			rendering = MockRendering.new('countries/companies/employees')
-			rendering.relative_path('assets/images/foo.jpg').should == '../../../assets/images/foo.jpg'
+			[
+				['countries/companies/employees', 'assets/images/foo.jpg', '../../../assets/images/foo.jpg'],
+				['a/b/c/d/e/f', 'a/b/z', '../../../../z'],
+				['a/b/z', 'a/b/c/d/e/f', '../c/d/e/f']
+			].each do |output_file_path, target, expected|
+				rendering = MockRendering.new(output_file_path)
+				rendering.relative_path(target).should == expected
+			end
 		end
 	end
 end
