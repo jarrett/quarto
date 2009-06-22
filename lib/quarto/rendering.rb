@@ -1,6 +1,6 @@
 module Quarto
 	class Rendering # :nodoc: all
-		def initialize(__erb_template, __locals, __mixins, __output_file_path)
+		def initialize(__erb_template, __locals, __mixins)
 			unless __erb_template.is_a?(ERB)
 				raise ArgumentError, "Expected ERB but got #{__erb_template.inspect}"
 			end
@@ -29,19 +29,12 @@ module Quarto
 			end
 			
 			@result = __erb_template.result(__b)
-			@output_file_path = __output_file_path
 		end
 		
-		def self.render(erb_template, locals, mixins = [], output_file_path = '', &block)
-			new(erb_template, locals, mixins, output_file_path, &block).result
+		def self.render(erb_template, locals, mixins = [], &block)
+			new(erb_template, locals, mixins, &block).result
 		end
 		
 		attr_reader :result
-		
-		protected
-		
-		def output_file_path
-			@output_file_path
-		end
 	end
 end

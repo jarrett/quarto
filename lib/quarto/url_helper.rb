@@ -31,7 +31,12 @@ module Quarto
 		# the current output file is in <tt>output/employees</tt>, and you call
 		# <tt>relative_path('images/foo.jpg')</tt>, the result will be <tt>../images/foo.jpg</tt>.
 		def relative_path(path)
-			current_hierarchy = output_file_path.split('/')
+			current_hierarchy = Quarto::Generator.current_output_file_path
+			unless current_hierarchy.is_a?(String)
+				raise "Expected Quarto::Generator.current_output_file_path to be a String, but got #{current_hierarchy.inspect}"
+			end
+			current_hierarchy = current_hierarchy.split('/')
+			current_hierarchy.pop # remove the filename
 			target_hierarchy = path.split('/')
 			while current_hierarchy[0] == target_hierarchy[0]
 				current_hierarchy.shift
@@ -40,14 +45,13 @@ module Quarto
 			rel_path = current_hierarchy.inject('') do |result, dir|
 				result + '../'
 			end
-			#puts target_hierarchy.inspect
 			rel_path << target_hierarchy.join('/')
 		end
 		
 		def url_for_with_element_wrapper(options = {})
 			if options.is_a?(Quarto::ElementWrapper::Base)
 				if options.respond_to?(:to_path)
-					return options.to_path
+					return relative_path(options.to_path)
 				else
 					raise "#{options.class} must define to_path if you want to pass an instance into link_to or url_for"
 				end

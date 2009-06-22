@@ -76,6 +76,14 @@ module Quarto
 			@console = @options[:console]
 		end
 		
+		def self.current_output_file_path
+			@current_output_file_path
+		end
+		
+		def self.current_output_file_path=(path)
+			@current_output_file_path = path
+		end
+		
 		def urls_file_path # :nodoc:
 			@project_path + '/urls.rb'
 		end
@@ -115,17 +123,20 @@ module Quarto
 			
 			if directory.nil? or directory.empty?
 				path = "#{@output_path}/#{filename}"
+				self.class.current_output_file_path = filename
 			else
 				subdir = "#{@output_path}/#{directory}"
 				if !File.exists? subdir
 					FileUtils::mkdir_p subdir
 				end
 				path = "#{subdir}/#{filename}"
+				self.class.current_output_file_path = "#{directory}/#{filename}"
 			end
 			
 			File.open(path, 'w') do |file|
 				file.print render_to_s(template, locals, options)
 			end
+			self.class.current_output_file_path = nil
 		end
 		
 		# Renders +template+ to a string. Sets local variables within the template to the values given

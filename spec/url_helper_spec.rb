@@ -118,12 +118,16 @@ describe Quarto::UrlHelper do
 				class TemplateOutsideRails
 					include Quarto::UrlHelper
 				end
+				
+				Quarto::Generator.current_output_file_path = ''
 			end
 			
 			after :each do
 				Object.class_eval do
 					remove_const :TemplateOutsideRails
 				end
+				
+				Quarto::Generator.current_output_file_path = nil
 			end
 			
 			it 'should be defined' do
@@ -179,6 +183,8 @@ describe Quarto::UrlHelper do
 					
 					include Quarto::UrlHelper
 				end
+				
+				Quarto::Generator.current_output_file_path = ''
 			end
 			
 			after :each do
@@ -186,6 +192,8 @@ describe Quarto::UrlHelper do
 					remove_const :RAILS_GEM_VERSION
 					remove_const :RailsTemplate
 				end
+				
+				Quarto::Generator.current_output_file_path = nil
 			end
 			
 			it 'should pass the parameter through to the Rails url_for if the parameter is not an ElementWrapper::Base' do
@@ -210,12 +218,6 @@ describe Quarto::UrlHelper do
 		before :all do
 			class MockRendering
 				include Quarto::UrlHelper
-				
-				def initialize(output_file_path)
-					@output_file_path = output_file_path
-				end
-				
-				attr_accessor :output_file_path
 			end
 		end
 		
@@ -225,25 +227,25 @@ describe Quarto::UrlHelper do
 			end
 		end
 		
-		it 'should call output_file_path' do
-			rendering = MockRendering.new('employees')
-			rendering.should_receive('output_file_path').and_return('employees')
+		it 'should call Generator.output_file_path' do
+			Quarto::Generator.current_output_file_path = 'employees'
+			Quarto::Generator.should_receive(:current_output_file_path).and_return('employees')
+			rendering = MockRendering.new
 			rendering.relative_path('images/foo.jpg')
+			Quarto::Generator.current_output_file_path = nil
 		end
 		
 		it 'should derive the correct relative path from output_file_path to the given file' do
-			rendering = MockRendering.new('employees')
-			rendering.relative_path('images/foo.jpg').should == '../images/foo.jpg'
-		end
-		
-		it 'should work for complex directory structures' do
 			[
-				['countries/companies/employees', 'assets/images/foo.jpg', '../../../assets/images/foo.jpg'],
-				['a/b/c/d/e/f', 'a/b/z', '../../../../z'],
-				['a/b/z', 'a/b/c/d/e/f', '../c/d/e/f']
+				['employees.html', 'images/foo.jpg', 'images/foo.jpg'],
+				['countries/companies/employees.html', 'assets/images/foo.jpg', '../../assets/images/foo.jpg'],
+				['a/b/c/d/e/f/g.html', 'a/b/z.html', '../../../../z.html'],
+				['a/b/y/z.html', 'a/b/c/d/e/f.gif', '../c/d/e/f.gif']
 			].each do |output_file_path, target, expected|
-				rendering = MockRendering.new(output_file_path)
+				Quarto::Generator.current_output_file_path = output_file_path
+				rendering = MockRendering.new
 				rendering.relative_path(target).should == expected
+				Quarto::Generator.current_output_file_path = nil
 			end
 		end
 	end

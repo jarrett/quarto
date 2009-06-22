@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{quarto}
-  s.version = "1.6.0"
+  s.version = "1.6.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jarrett Colby"]
-  s.date = %q{2009-06-19}
+  s.date = %q{2009-06-22}
   s.default_executable = %q{quarto}
   s.description = %q{Quarto is a Ruby framework for generating collections of documents from XML. It steps in where XSLT just won't cut it. Potential applications include web sites and e-books. It's built on top of ERB and REXML.}
   s.email = %q{jarrett@uchicago.edu}

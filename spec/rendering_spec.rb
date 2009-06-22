@@ -42,11 +42,4 @@ describe Quarto::Rendering do
 			end
 		end
 	end
-	
-	context '#output_file_path' do
-		it 'should return the path' do
-			rendering = Quarto::Rendering.new(ERB.new('foo'), {}, [], 'bar/baz')
-			rendering.send(:output_file_path).should == 'bar/baz'
-		end
-	end
 end
