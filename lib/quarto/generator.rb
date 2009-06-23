@@ -25,7 +25,7 @@ module Quarto
 			raise ArgumentError, 'project_path is required when Quarto.generate is called from any file other than generate.rb'
 		end
 		Dir.glob(project_path + '/models/*.rb').each do |model_file|
-			require model_file
+			require File.expand_path(model_file)
 		end
 		Dir.glob(project_path + '/transformers/*.rb').each do |transformer_file|
 			require transformer_file

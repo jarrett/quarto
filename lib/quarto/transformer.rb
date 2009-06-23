@@ -42,11 +42,9 @@ module Quarto
 			if element.is_a?(REXML::Document)
 				recursive_transform(element.root, raise_on_unrecognized_element)
 			else
-				result = ''
-				element.children.each do |child|
-					result << recursive_transform(child, raise_on_unrecognized_element)
+				element.children.to_a.inject('') do |result, child|
+					result + recursive_transform(child, raise_on_unrecognized_element)
 				end
-				result
 			end
 		end
 		
@@ -154,6 +152,8 @@ module Quarto
 				else
 					''
 				end
+			elsif element.is_a?(REXML::Comment)
+				''
 			else
 				element.to_s
 			end

@@ -48,7 +48,7 @@ describe Quarto::Transformer do
 		end
 		
 		it 'should not transform elements that lack custom transform methods and for which literal? returns true' do
-			result = REXML::Document.new(@t.transform(@doc))
+			result = REXML::Document.new(@t.transform(@doc, false))
 			result.should have_element('doc')
 			result.should have_element('div')
 			result.should have_element('p', :text => 'Foo')
@@ -106,6 +106,20 @@ describe Quarto::Transformer do
 					remove_const :CustomizedTestTransformer
 				end
 			end				
+		end
+		
+		it 'should ignore comments' do
+			doc = REXML::Document.new(%q(
+				<div>
+					<div>
+						<!-- this is a comment -->
+					</div>
+				</div>
+			))
+			
+			t = Quarto::HtmlTransformer.new
+			result = t.transform(doc, true)
+			result.should_not include('this is a comment')
 		end
 	end
 	
