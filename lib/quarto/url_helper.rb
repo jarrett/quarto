@@ -87,6 +87,9 @@ module Quarto
 				url = url_for(target)
 				options = {:html_options => {}}.merge(options)
 				output = "<a href=\"#{url}\""
+				if options.has_key?(:onclick)
+					options[:html_options][:onclick] ||= options[:onclick]
+				end
 				options[:html_options].each do |attr, value|
 					output << " #{attr}=\"#{value}\""
 				end
